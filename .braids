@@ -6,6 +6,13 @@ lib/express/lib/support/ext:
   type: git
   revision: 282c20ccb6a6f1ade55a98ce24bf8b68a508b0f6
   remote: braid/lib/express/lib/support/ext
+lib/nodeunit: 
+  squashed: true
+  url: http://github.com/caolan/nodeunit.git
+  branch: master
+  type: git
+  revision: 3437a428ef736fbcdae66c92a7a3bb0806f1a2af
+  remote: braid/lib/nodeunit
 lib/express/lib/support/multipart: 
   squashed: true
   url: git://github.com/isaacs/multipart-js.git
