@@ -20,3 +20,10 @@ lib/express:
   type: git
   revision: d579d62eb61f10234fdfe69dc5c2f6d7fa67bfd1
   remote: braid/lib/express
+lib/express/lib/support/haml: 
+  squashed: true
+  url: git://github.com/visionmedia/haml.js.git
+  branch: master
+  type: git
+  revision: 25c3e529df1503fe7863126f1a0eacf22bc5381f
+  remote: braid/lib/express/lib/support/haml
