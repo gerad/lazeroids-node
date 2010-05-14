@@ -1,4 +1,4 @@
-require.paths.unshift('./lib/express/lib')
+require.paths.unshift('./lib/express/lib', './lib/ext/lib')
 require('express')
 
 get('/', function(){
