@@ -1,15 +1,8 @@
 --- 
-lib/ext: 
-  squashed: true
-  branch: master
-  url: http://github.com/visionmedia/ext.js.git
-  type: git
-  revision: 282c20ccb6a6f1ade55a98ce24bf8b68a508b0f6
-  remote: braid/lib/ext
 lib/express: 
   squashed: true
-  branch: master
   url: git://github.com/visionmedia/express.git
+  branch: master
   type: git
   revision: d579d62eb61f10234fdfe69dc5c2f6d7fa67bfd1
   remote: braid/lib/express
