@@ -1,0 +1,8 @@
+--- 
+lib/express: 
+  squashed: true
+  url: git://github.com/visionmedia/express.git
+  branch: master
+  type: git
+  revision: d579d62eb61f10234fdfe69dc5c2f6d7fa67bfd1
+  remote: braid/lib/express
