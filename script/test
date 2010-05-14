@@ -1,0 +1,2 @@
+#! /usr/bin/env bash
+node lib/nodeunit/lib/testrunner.js test
