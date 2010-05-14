@@ -6,7 +6,7 @@ get('/', function(){
 });
 
 get('/hello/world', function(){
-  return 'Hello World'
+  return 'Hello World';
 });
 
 run(parseInt(process.env.PORT || 8000), null);
