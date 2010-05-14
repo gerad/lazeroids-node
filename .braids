@@ -34,3 +34,10 @@ lib/express/lib/support/haml:
   type: git
   revision: 25c3e529df1503fe7863126f1a0eacf22bc5381f
   remote: braid/lib/express/lib/support/haml
+lib/express/lib/support/sass: 
+  squashed: true
+  url: git://github.com/visionmedia/sass.js.git
+  branch: master
+  type: git
+  revision: fac9a896b361e32c02000bc7f7b92d4887332518
+  remote: braid/lib/express/lib/support/sass
