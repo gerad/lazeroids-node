@@ -9,4 +9,4 @@ get('/hello/world', function(){
   return 'Hello World'
 });
 
-run();
+run(parseInt(process.env.PORT || 8000), null);
