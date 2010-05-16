@@ -10,6 +10,5 @@ server: run parseInt(process.env.PORT || 8000), null
 sio: require './lib/socket.io/lib/socket.io'
 sio.listen server, {
   resource: '/ws',
-  transports: [
-    'websocket', 'server-events', 'flashsocket',
-    'htmlfile', 'xhr-multipart', 'xhr-polling' ]}
+  transports: 'websocket htmlfile xhr-multipart xhr-polling'.split(' ')
+}
