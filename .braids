@@ -34,6 +34,13 @@ lib/express:
   type: git
   revision: d579d62eb61f10234fdfe69dc5c2f6d7fa67bfd1
   remote: braid/lib/express
+public/javascripts/socket.io: 
+  squashed: true
+  url: http://github.com/LearnBoost/Socket.IO.git
+  branch: master
+  type: git
+  revision: 8a34dc75986c3c28da1dd21448e770dc5b54d44e
+  remote: braid/public/javascripts/socket.io
 lib/express/lib/support/haml: 
   squashed: true
   url: git://github.com/visionmedia/haml.js.git
