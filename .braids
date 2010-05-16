@@ -48,6 +48,13 @@ lib/express/lib/support/haml:
   type: git
   revision: 25c3e529df1503fe7863126f1a0eacf22bc5381f
   remote: braid/lib/express/lib/support/haml
+public/javascripts/socket.io/lib/vendor/web-socket-js: 
+  squashed: true
+  url: git://github.com/gimite/web-socket-js.git
+  branch: master
+  type: git
+  revision: e5c19418fd4e70f28d36c694e6e45e750abe6e76
+  remote: braid/public/javascripts/socket.io/lib/vendor/web-socket-js
 lib/express/lib/support/sass: 
   squashed: true
   url: git://github.com/visionmedia/sass.js.git
