@@ -1,0 +1,3 @@
+#! /usr/bin/env bash
+coffee -c *.coffee
+git push heroku master
