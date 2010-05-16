@@ -6,6 +6,13 @@ lib/socket.io:
   type: git
   revision: fbce6379a5065b5c5b95a3eaeabf57a555557548
   remote: braid/lib/socket.io
+lib/socket.io/lib/vendor/js-oo: 
+  squashed: true
+  url: git://github.com/visionmedia/js-oo.git
+  branch: master
+  type: git
+  revision: 1f94bd897994a952114cb1f280c1949d5e6a0648
+  remote: braid/lib/socket.io/lib/vendor/js-oo
 lib/express/lib/support/ext: 
   squashed: true
   url: git://github.com/visionmedia/ext.js.git
