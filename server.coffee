@@ -4,4 +4,12 @@ require 'express'
 get '/', -> this.redirect '/hello/world'
 get '/hello/world', -> 'Hello World'
 
-run parseInt(process.env.PORT || 8000), null
+server: run parseInt(process.env.PORT || 8000), null
+
+# handle web sockets
+sio: require './lib/socket.io/lib/socket.io'
+sio.listen server, {
+  resource: '/ws',
+  transports: [
+    'websocket', 'server-events', 'flashsocket',
+    'htmlfile', 'xhr-multipart', 'xhr-polling' ]}
