@@ -1,3 +1,5 @@
 #! /usr/bin/env bash
-coffee -c *.coffee
+coffee -c server.coffee
+git add server.js
+git commit -m "server.js"
 git push heroku master
