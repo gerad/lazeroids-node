@@ -1,4 +1,11 @@
 --- 
+lib/socket.io: 
+  squashed: true
+  url: http://github.com/LearnBoost/Socket.IO-node.git
+  branch: master
+  type: git
+  revision: fbce6379a5065b5c5b95a3eaeabf57a555557548
+  remote: braid/lib/socket.io
 lib/express/lib/support/ext: 
   squashed: true
   url: git://github.com/visionmedia/ext.js.git
