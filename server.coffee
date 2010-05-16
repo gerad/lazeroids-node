@@ -1,8 +1,12 @@
 require.paths.unshift './lib/express/lib'
 require 'express'
 
-get '/', -> this.redirect '/hello/world'
-get '/hello/world', -> 'Hello World'
+# required  for views
+configure ->
+  set 'root', __dirname
+
+get '/', ->
+  @render 'index.html.haml'
 
 server: run parseInt(process.env.PORT || 8000), null
 
