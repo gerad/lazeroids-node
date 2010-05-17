@@ -1,1 +1,10 @@
 %h1 LAZEROIDS!!!
+:javascript
+  $(function() {
+    var socket = new io.Socket('localhost', { rememberTransport: false, port: 8000, resource: 'commet' });
+    socket.connect();
+    socket.send('some data');
+    socket.addEvent('message', function(data) {
+      alert('got some data' + data);
+    });
+  });
