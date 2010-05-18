@@ -1,8 +1,8 @@
 this.exports = this.Lz = {}
 
-Lz.socket: new io.Socket 'localhost', {
+Lz.socket: new io.Socket window.location.hostname, {
   rememberTransport: false
-  port: 8000
+  port: window.location.port or 80
   resource: 'comet'
 }
 Lz.socket.connect()
