@@ -10,13 +10,13 @@ server: run parseInt(process.env.PORT || 8000), null
 
 # handle web sockets
 sio: require './lib/socket.io/lib/socket.io'
-commet: sio.listen server, {
-  resource: 'commet'
+comet: sio.listen server, {
+  resource: 'comet'
   transports: 'websocket htmlfile xhr-multipart xhr-polling'.split(' ')
   onClientConnect: (client) ->
-    commet.broadcast json({ msg: "${client.sessionId} connected" })
+    comet.broadcast json({ msg: "${client.sessionId} connected" })
   onClientDisconnect: (client) ->
     client.broadcast json({ msg: "${client.sessionId} disconnected" })
   onClientMessage: (message, client) ->
-    commet.broadcast json({ msg: "${client.sessionId} wrote $message" })
+    comet.broadcast json({ msg: "${client.sessionId} wrote $message" })
 }

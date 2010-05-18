@@ -3,7 +3,7 @@ this.exports = this.Lz = {}
 Lz.socket: new io.Socket 'localhost', {
   rememberTransport: false
   port: 8000
-  resource: 'commet'
+  resource: 'comet'
 }
 Lz.socket.connect()
 
