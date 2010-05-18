@@ -8,9 +8,11 @@ Lz.socket.connect()
 
 $ ->
   $('form').submit ->
-    $textarea: $(this).find('textarea')
-    Lz.socket.send $textarea.val()
-    $textarea.val('')
+    Lz.socket.send $('input[type=text]', this).val()
+    this.reset()
     false
+
+  $('input:first').select()
+
   Lz.socket.addEvent 'message', (data) ->
     $('#message').append JSON.parse(data).msg + '<br />'
