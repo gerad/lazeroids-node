@@ -3,8 +3,6 @@
   %head
     %title LAZEROIDS!!
     %script{ src: 'http://code.jquery.com/jquery.js' }
-    %script{ src: '/public/javascripts/socket.io/socket.io.js' }
+    %script{ src: 'http://lazeroids.com.s3.amazonaws.com/socket.io.js' }
     %script{ src: '/application.js' }
-    :coffeescript
-      io.setPath '/public/javascripts/socket.io/'
   %body!= body

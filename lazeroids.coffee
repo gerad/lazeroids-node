@@ -6,10 +6,6 @@ get '/', ->
 get '/application.js', ->
   @render 'application.js.coffee', { layout: false }
 
-get '/public/*', (file) ->
-  @header 'Cache-Control', 'no-cache'
-  @pass()
-
 server: run parseInt(process.env.PORT || 8000), null
 
 # handle web sockets
