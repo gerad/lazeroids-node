@@ -28,14 +28,10 @@ var fs = require('fs'),
 		'transport.js',
 		'transports/xhr.js',
 		'transports/websocket.js',
-		'transports/flashsocket.js',
 		'transports/htmlfile.js',
 		'transports/xhr-multipart.js',
 		'transports/xhr-polling.js',
 		'socket.js',
-		'vendor/web-socket-js/swfobject.js',
-		'vendor/web-socket-js/FABridge.js',
-		'vendor/web-socket-js/web_socket.js'
 	],
 	content = "/** Socket.IO "+ socket.io.version +" - Built with build.js */\n";
 

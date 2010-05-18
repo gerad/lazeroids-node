@@ -72,7 +72,7 @@ Options:
 
 - *transports*
 
-		['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling']
+		['websocket', 'htmlfile', 'xhr-multipart', 'xhr-polling']
 
 	A list of the transports to attempt to utilize (in order of preference)
 	
