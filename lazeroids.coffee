@@ -1,16 +1,10 @@
-require.paths.unshift './lib/express/lib'
-require 'express'
-require 'express/plugins'
-use Static # require for public
-use Logger
 json: JSON.stringify
-
-# required  for views
-configure ->
-  set 'root', __dirname
 
 get '/', ->
   @render 'index.html.haml'
+
+get '/application.js', ->
+  @render 'application.js.coffee', { layout: false }
 
 server: run parseInt(process.env.PORT || 8000), null
 
