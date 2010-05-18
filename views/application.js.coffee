@@ -1,8 +1,7 @@
 this.exports = this.Lz = {}
 
-Lz.socket: new io.Socket window.location.hostname, {
+Lz.socket: new io.Socket null, {
   rememberTransport: false
-  port: window.location.port or 80
   resource: 'comet'
 }
 Lz.socket.connect()
