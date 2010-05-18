@@ -1,4 +1,11 @@
 --- 
+lib/coffee/lib/coffee-script: 
+  squashed: true
+  url: http://github.com/jashkenas/coffee-script.git
+  branch: master
+  type: git
+  revision: 485346f0e57bf3e56bc715ee81c88145e1590b6c
+  remote: braid/lib/coffee/lib/coffee-script
 lib/socket.io: 
   squashed: true
   url: http://github.com/LearnBoost/Socket.IO-node.git
