@@ -1,4 +1,14 @@
 %h1 LAZEROIDS!!!
+#message
+%form
+  %textarea
+  %input{ type: 'submit', value: 'Send' }
 :coffeescript
   $ ->
-    alert "foo"
+    $('form').submit ->
+      $textarea: $(this).find('textarea')
+      Lz.socket.send $textarea.val()
+      $textarea.val('')
+      false
+    Lz.socket.addEvent 'message', (data) ->
+      $('#message').append JSON.parse(data).msg + '<br />'
