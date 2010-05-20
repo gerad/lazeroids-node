@@ -17,8 +17,8 @@ $ ->
   u: new Lz.Universe { canvas: c }
   u.start($('canvas').get(0))
   u.add(new Lz.Mass({
-    position: new Lz.Vector 100, 100
-    velocity: new Lz.Vector 0
+    position: new Lz.Vector c.width/2, c.height/2
+    velocity: new Lz.Vector Math.PI/2
     radius: 10
   }))
 
@@ -27,7 +27,7 @@ class Lz.Universe
     { canvas: @canvas }: options || {}
     @masses: []
     @tick: 0
-    @ctx: @canvas.getContext('2d')
+    @ctx: @canvas.getContext '2d'
     @ctx.lineCap: 'round'
     @ctx.lineJoin: 'round'
     @ctx.strokeStyle: 'rgb(255,255,255)'
@@ -46,7 +46,7 @@ class Lz.Universe
     setTimeout this.loop <- this, 1000/24
 
   step: (dt) ->
-    mass.step(dt) for mass in @masses
+    mass.step dt for mass in @masses
     this.render()
 
   render: ->
@@ -71,12 +71,12 @@ class Lz.Mass
 
   step: (dt) ->
     @tick += dt
-    @position = @position.plus @velocity.times dt
-    @velocity = @velocity.plus @acceleration.times dt
+    @position: @position.plus @velocity.times(dt)
+    @velocity: @velocity.plus @acceleration.times(dt)
     @velocity.zeroSmall()
 
     # drag
-    @acceleration = @acceleration.times 0.5
+    @acceleration: @acceleration.times 0.5
     @acceleration.zeroSmall()
 
   render: (ctx) ->
@@ -101,7 +101,7 @@ class Lz.Mass
 class Lz.Vector
   # can pass either x, y coords or radians for a unit vector
   constructor: (x, y) ->
-    [@x, @y]: if y? then [x, y] else [Math.cos x, Math.sin x]
+    [@x, @y]: if y? then [x, y] else [Math.cos(x), Math.sin(x)]
     @x: or 0
     @y: or 0
 
