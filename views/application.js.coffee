@@ -18,19 +18,23 @@ class Universe
   add: (mass) ->
     @masses.push mass
 
-  start:
+  start: ->
     this.loop()
 
-  loop:
+  loop: ->
     this.step 1
-    setTimeout this.loop <- this, 50
+    setTimeout this.loop, 1000/24
 
   step: (dt) ->
     mass.step(dt) for mass in @masses
 
 class Mass
   constructor: (options) ->
-    {@tick, @postion, @velocity, @acceleration}: options
+    { tick: @tick
+      position: @postion
+      velocity: @velocity
+      acceleration: @acceleration
+    }: options
 
   step: (dt) ->
     @tick += dt
