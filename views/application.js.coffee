@@ -1,7 +1,7 @@
 this.exports = this.Lz = {}
 
 $ ->
-  con: new Connection()
+  con: new Lz.Connection()
   $('form').submit ->
     con.send $('input[type=text]', this).val()
     this.reset()
@@ -10,10 +10,14 @@ $ ->
     $('#message').append "${data.msg}<br />"
   $('input:first').select()
 
-class Universe
+  u: new Lz.Universe { canvas: $('canvas').get(0) }
+  u.start()
+
+class Lz.Universe
   constructor: (options) ->
     @masses: []
     @tick: 0
+    @canvas: options.canvas
 
   add: (mass) ->
     @masses.push mass
@@ -28,7 +32,7 @@ class Universe
   step: (dt) ->
     mass.step(dt) for mass in @masses
 
-class Mass
+class Lz.Mass
   constructor: (options) ->
     { tick: @tick
       position: @postion
@@ -46,7 +50,7 @@ class Mass
     @acceleration = @acceleration.times 0.5
     @acceleration.zeroSmall
 
-class Vector
+class Lz.Vector
   constructor: (x, y) ->
     [@x, @y]: if y? then [x, y] else [Math.cos x, Math.sin x]
 
@@ -72,9 +76,9 @@ class Vector
     @x: 0 if Math.abs(@x) < 0.01
     @y: 0 if Math.abs(@y) < 0.01
 
-class Connection
+class Lz.Connection
   constructor: ->
-    @o: new Observable()
+    @o: new Lz.Observable()
     @socket: new io.Socket null, {
       rememberTransport: false
       resource: 'comet'
@@ -94,7 +98,7 @@ class Connection
       data: JSON.parse json
       @o.trigger "message", data
 
-class Observable
+class Lz.Observable
   bind: (name, fn) ->
     this.observers(name).push fn
 
