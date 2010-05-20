@@ -10,6 +10,28 @@ $ ->
     $('#message').append "${data.msg}<br />"
   $('input:first').select()
 
+class Vector
+  constructor: (x, y) ->
+    [@x, @y]: if y? then [x, y] else [Math.cos x, Math.sin x]
+
+  plus: (v) ->
+    new Vector @x + v.x, @y + v.y
+
+  minus: (v) ->
+    new Vector @x - v.x, @y - v.y
+
+  times: (s) ->
+    new Vector @x * s, @y * s
+
+  length: ->
+    Math.sqrt @x * @x + @y * @y
+
+  normalized: ->
+    this.times 1.0 / this.length()
+
+  clone: ->
+    new Vector @x, @y
+
 class Connection
   constructor: ->
     @o: new Observable()
