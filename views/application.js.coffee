@@ -84,13 +84,14 @@ class Mass
 
   step: (dt) ->
     @tick += dt
-    @position: @position.plus @velocity.times(dt)
-    @velocity: @velocity.plus @acceleration.times(dt)
 
-    # drag
-    @acceleration: @acceleration.times 0.5
+    for t in [0...dt]
+      @velocity: @velocity.plus @acceleration
+      @position: @position.plus @velocity
+      # drag
+      @acceleration: @acceleration.times 0.5
 
-    @rotation += @rotationalVelocity
+      @rotation += @rotationalVelocity
 
   render: (ctx) ->
     ctx.save()
