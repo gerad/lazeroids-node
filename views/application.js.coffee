@@ -33,6 +33,11 @@ $ ->
         s.thrust()
       when 40  # down
         s.brake()
+      when 90  # z = zoom
+        if u.zoom == 1
+          u.zoom: 0.4
+        else
+          u.zoom: 1
 
   $(window).keyup (e) ->
     switch e.which
@@ -87,6 +92,7 @@ class Universe
     @masses: []
     @tick: 0
 
+    @zoom: 1
     @bounds: new Bounds @canvas
     @ctx: @canvas.getContext '2d'
     @ctx.lineCap: 'round'
@@ -120,6 +126,9 @@ class Universe
     ctx.clearRect 0, 0, @canvas.width, @canvas.height
     ctx.save()
 
+    if @zoom != 1
+      ctx.scale @zoom, @zoom
+      ctx.translate @bounds.width*0.75, @bounds.height*0.75
     @bounds.translate ctx
     mass.render ctx for mass in @masses
 
