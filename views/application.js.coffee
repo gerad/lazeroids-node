@@ -70,6 +70,7 @@ class Universe
     ctx: @ctx
     ctx.clearRect 0, 0, @canvas.width, @canvas.height
     mass.render ctx for mass in @masses
+Lz.Universe: Universe
 
 class Mass
   constructor: (options) ->
@@ -196,6 +197,7 @@ class Connection
     @socket.addEvent 'message', (json) =>
       data: JSON.parse json
       @trigger "message", data
+Lz.Connection: Connection
 
 class Observable
   bind: (name, fn) ->
