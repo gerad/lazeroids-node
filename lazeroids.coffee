@@ -3,11 +3,14 @@ json: JSON.stringify
 get '/', ->
   @render 'index.html.haml'
 
-get '/application.js', ->
-  @render 'application.js.coffee', { layout: false }
+get '/*.js', (file) ->
+  @render "${file}.js.coffee", { layout: false }
 
-get '/*', (path) ->
-  this.pass "/public/${path}"
+get '/*.css', (file) ->
+  @render "${file}.css.sass", { layout: false }
+
+get '/*', (file) ->
+  this.pass "/public/${file}"
 
 server: run parseInt(process.env.PORT || 8000), null
 
