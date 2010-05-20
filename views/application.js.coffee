@@ -19,6 +19,7 @@ $ ->
     position: new Vector c.width/2, c.height/2
   }
   u.add s
+  u.ship: s
   for i in [0 .. 4]
     u.add new Asteroid()
 
@@ -42,11 +43,53 @@ $ ->
       when 39  # right
         s.rotate(-1)
 
+class Bounds
+  BUFFER: 40
+
+  constructor: (canvas) ->
+    [@l, @t] = [0, 0]
+    @width = @r = canvas.width
+    @height = @b = canvas.height
+    @dx = @dy = 0
+
+  check: (ship) ->
+    p: ship.position
+
+    if p.x < @l+@BUFFER
+      @dx: -@width * 0.75
+    else if p.x > @r-@BUFFER
+      @dx: +@width * 0.75
+
+    if p.y < @t+@BUFFER
+      @dy: -@height * 0.75
+    else if p.y > @b-@BUFFER
+      @dy: +@height * 0.75
+
+    if @dx != 0
+      dx: parseInt @dx / 8
+      @l += dx; @r += dx
+      @dx -= dx
+      @dx: 0 if Math.abs(@dx) < 3
+
+    if @dy != 0
+      dy: parseInt @dy / 8
+      @t += dy; @b += dy
+      @dy -= dy
+      @dy: 0 if Math.abs(@dy) < 3
+
+  translate: (ctx) ->
+    ctx.translate(-@l, -@t)
+
+  randomPosition: ->
+    new Vector @width * Math.random() + @l, @height * Math.random() + @t
+
 class Universe
   constructor: (options) ->
     { canvas: @canvas }: options || {}
     @masses: []
     @tick: 0
+
+    @bounds: new Bounds @canvas
     @ctx: @canvas.getContext '2d'
     @ctx.lineCap: 'round'
     @ctx.lineJoin: 'round'
@@ -63,16 +106,23 @@ class Universe
 
   loop: ->
     @step 1
+    @render()
     setTimeout @loop <- this, 1000/24
 
   step: (dt) ->
+    @tick += dt
     mass.step dt for mass in @masses
-    @render()
+    @bounds.check @ship
 
   render: ->
     ctx: @ctx
     ctx.clearRect 0, 0, @canvas.width, @canvas.height
+    ctx.save()
+
+    @bounds.translate ctx
     mass.render ctx for mass in @masses
+
+    ctx.restore()
 
   #injectAsteroids: (howMany) ->
     #return if @masses.length > 80
