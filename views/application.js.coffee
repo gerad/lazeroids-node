@@ -1,7 +1,7 @@
 this.exports = this.Lz = {}
 
 $ ->
-  con: new Lz.Connection()
+  con: new Connection()
   $('form').submit ->
     con.send $('input[type=text]', this).val()
     this.reset()
@@ -14,15 +14,32 @@ $ ->
   c = $('canvas').get 0
   [c.width, c.height]: [$(window).width()-3, $(window).height()-3]
 
-  u: new Lz.Universe { canvas: c }
-  u.start($('canvas').get(0))
-  u.add(new Lz.Mass({
-    position: new Lz.Vector c.width/2, c.height/2
-    velocity: new Lz.Vector Math.PI/2
-    radius: 10
-  }))
+  u: new Universe { canvas: c }
+  s: new Spaceship {
+    position: new Vector c.width/2, c.height/2
+  }
+  u.add s
+  u.start c
 
-class Lz.Universe
+  $(window).keydown (e) ->
+    switch e.which
+      when 37  # left
+        s.rotate(-1)
+      when 39  # right
+        s.rotate(+1)
+      when 38  # up
+        s.thrust()
+      when 40  # down
+        s.brake()
+
+  $(window).keyup (e) ->
+    switch e.which
+      when 37  # left
+        s.rotate(+1)
+      when 39  # right
+        s.rotate(-1)
+
+class Universe
   constructor: (options) ->
     { canvas: @canvas }: options || {}
     @masses: []
@@ -54,20 +71,22 @@ class Lz.Universe
     ctx.clearRect 0, 0, @canvas.width, @canvas.height
     mass.render ctx for mass in @masses
 
-class Lz.Mass
+class Mass
   constructor: (options) ->
     { tick: @tick
       position: @position
       velocity: @velocity
       acceleration: @acceleration
       rotation: @rotation
+      rotationalVelocity: @rotationalVelocity
       radius: @radius
     }: options || {}
     @radius: or 1
-    @position: or new Lz.Vector()
-    @velocity: or new Lz.Vector()
-    @acceleration: or new Lz.Vector()
-    @rotation: or new Lz.Vector(0)
+    @position: or new Vector()
+    @velocity: or new Vector()
+    @acceleration: or new Vector()
+    @rotation: or 0
+    @rotationalVelocity: or 0
 
   step: (dt) ->
     @tick += dt
@@ -78,6 +97,8 @@ class Lz.Mass
     # drag
     @acceleration: @acceleration.times 0.5
     @acceleration.zeroSmall()
+
+    @rotation += @rotationalVelocity
 
   render: (ctx) ->
     ctx.save()
@@ -98,7 +119,36 @@ class Lz.Mass
     ctx.stroke()
     ctx.restore()
 
-class Lz.Vector
+class Spaceship extends Mass
+  constructor: (options) ->
+    options: or {}
+    options.radius: or 16
+    super options
+
+  _render: (ctx) ->
+    ctx.save()
+    ctx.beginPath()
+    ctx.moveTo @radius, 0
+    ctx.lineTo 0, @radius / 2.6
+    ctx.lineTo 0, @radius / -2.6
+    ctx.closePath()
+    ctx.stroke()
+    ctx.restore()
+
+  thrust: ->
+    @acceleration: @acceleration.plus(new Vector(@rotation))
+
+  brake: ->
+    @acceleration: @acceleration.plus(new Vector(@rotation).times(-1))
+
+  rotate: (dir) ->
+    if (dir > 0 && @rotationalVelocity <= 0)
+      @rotationalVelocity += Math.PI / 32
+    else if (dir < 0 && @rotationalVelocity >= 0)
+      @rotationalVelocity -= Math.PI / 32
+Lz.Spaceship: Spaceship
+
+class Vector
   # can pass either x, y coords or radians for a unit vector
   constructor: (x, y) ->
     [@x, @y]: if y? then [x, y] else [Math.cos(x), Math.sin(x)]
@@ -106,13 +156,13 @@ class Lz.Vector
     @y: or 0
 
   plus: (v) ->
-    new Lz.Vector @x + v.x, @y + v.y
+    new Vector @x + v.x, @y + v.y
 
   minus: (v) ->
-    new Lz.Vector @x - v.x, @y - v.y
+    new Vector @x - v.x, @y - v.y
 
   times: (s) ->
-    new Lz.Vector @x * s, @y * s
+    new Vector @x * s, @y * s
 
   length: ->
     Math.sqrt @x * @x + @y * @y
@@ -121,15 +171,16 @@ class Lz.Vector
     this.times 1.0 / this.length()
 
   clone: ->
-    new Lz.Vector @x, @y
+    new Vector @x, @y
 
   zeroSmall: ->
     @x: 0 if Math.abs(@x) < 0.01
     @y: 0 if Math.abs(@y) < 0.01
+Lz.Vector: Vector
 
-class Lz.Connection
+class Connection
   constructor: ->
-    @o: new Lz.Observable()
+    @o: new Observable()
     @socket: new io.Socket null, {
       rememberTransport: false
       resource: 'comet'
@@ -149,7 +200,7 @@ class Lz.Connection
       data: JSON.parse json
       @o.trigger "message", data
 
-class Lz.Observable
+class Observable
   bind: (name, fn) ->
     this.observers(name).push fn
 
