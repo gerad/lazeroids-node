@@ -10,6 +10,38 @@ $ ->
     $('#message').append "${data.msg}<br />"
   $('input:first').select()
 
+class Universe
+  constructor: (options) ->
+    @masses: []
+    @tick: 0
+
+  add: (mass) ->
+    @masses.push mass
+
+  start:
+    this.loop()
+
+  loop:
+    this.step 1
+    setTimeout this.loop <- this, 50
+
+  step: (dt) ->
+    mass.step(dt) for mass in @masses
+
+class Mass
+  constructor: (options) ->
+    {@tick, @postion, @velocity, @acceleration}: options
+
+  step: (dt) ->
+    @tick += dt
+    @position = @position.plus @velocity.times dt
+    @velocity = @velocity.plus @acceleration.times dt
+    @velocity.zeroSmall
+
+    # drag
+    @acceleration = @acceleration.times 0.5
+    @acceleration.zeroSmall
+
 class Vector
   constructor: (x, y) ->
     [@x, @y]: if y? then [x, y] else [Math.cos x, Math.sin x]
@@ -31,6 +63,10 @@ class Vector
 
   clone: ->
     new Vector @x, @y
+
+  zeroSmall: ->
+    @x: 0 if Math.abs(@x) < 0.01
+    @y: 0 if Math.abs(@y) < 0.01
 
 class Connection
   constructor: ->
