@@ -73,20 +73,14 @@ class Universe
 
 class Mass
   constructor: (options) ->
-    { tick: @tick
-      position: @position
-      velocity: @velocity
-      acceleration: @acceleration
-      rotation: @rotation
-      rotationalVelocity: @rotationalVelocity
-      radius: @radius
-    }: options || {}
-    @radius: or 1
-    @position: or new Vector()
-    @velocity: or new Vector()
-    @acceleration: or new Vector()
-    @rotation: or 0
-    @rotationalVelocity: or 0
+    o: options or {}
+    @tick: o.tick or 0
+    @radius: o.radius or 1
+    @position: o.position or new Vector()
+    @velocity: o.velocity or new Vector()
+    @acceleration: o.acceleration or new Vector()
+    @rotation: o.rotation or 0
+    @rotationalVelocity: o.rotationalVelocity or 0
 
   step: (dt) ->
     @tick += dt
