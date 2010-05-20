@@ -10,7 +10,7 @@ get '/*.css', (file) ->
   @render "${file}.css.sass", { layout: false }
 
 get '/*', (file) ->
-  this.pass "/public/${file}"
+  @pass "/public/${file}"
 
 server: run parseInt(process.env.PORT || 8000), null
 
