@@ -1,14 +1,14 @@
 this.exports = this.Lz = {}
 
-class Observable
-  bind: (name, fn) ->
-    this.observers(name).push fn
-
-  trigger: (name, args...) ->
-    callback args... for callback in this.observers(name)
-
-  observers: (name) ->
-    (@_observers ||= {})[name] ||= []
+$ ->
+  con: new Connection()
+  $('form').submit ->
+    con.send $('input[type=text]', this).val()
+    this.reset()
+    false
+  con.receive (data) ->
+    $('#message').append "${data.msg}<br />"
+  $('input:first').select()
 
 class Connection
   constructor: ->
@@ -32,15 +32,12 @@ class Connection
       data: JSON.parse json
       @o.trigger "message", data
 
-$ ->
-  con: new Connection()
+class Observable
+  bind: (name, fn) ->
+    this.observers(name).push fn
 
-  $('form').submit ->
-    con.send $('input[type=text]', this).val()
-    this.reset()
-    false
+  trigger: (name, args...) ->
+    callback args... for callback in this.observers(name)
 
-  $('input:first').select()
-
-  con.receive (data) ->
-    $('#message').append "${data.msg}<br />"
+  observers: (name) ->
+    (@_observers ||= {})[name] ||= []
