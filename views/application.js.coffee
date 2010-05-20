@@ -92,11 +92,9 @@ class Mass
     @tick += dt
     @position: @position.plus @velocity.times(dt)
     @velocity: @velocity.plus @acceleration.times(dt)
-    @velocity.zeroSmall()
 
     # drag
     @acceleration: @acceleration.times 0.5
-    @acceleration.zeroSmall()
 
     @rotation += @rotationalVelocity
 
@@ -154,6 +152,7 @@ class Vector
     [@x, @y]: if y? then [x, y] else [Math.cos(x), Math.sin(x)]
     @x: or 0
     @y: or 0
+    this._zeroSmall()
 
   plus: (v) ->
     new Vector @x + v.x, @y + v.y
@@ -173,7 +172,7 @@ class Vector
   clone: ->
     new Vector @x, @y
 
-  zeroSmall: ->
+  _zeroSmall: ->
     @x: 0 if Math.abs(@x) < 0.01
     @y: 0 if Math.abs(@y) < 0.01
 Lz.Vector: Vector
