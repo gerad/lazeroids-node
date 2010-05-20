@@ -6,6 +6,9 @@ get '/', ->
 get '/application.js', ->
   @render 'application.js.coffee', { layout: false }
 
+get '/*', (path) ->
+  this.pass "/public/${path}"
+
 server: run parseInt(process.env.PORT || 8000), null
 
 # handle web sockets
