@@ -27,7 +27,7 @@ class Lz.Universe
 
   loop: ->
     this.step 1
-    setTimeout this.loop, 1000/24
+    setTimeout this.loop <- this, 1000/24
 
   step: (dt) ->
     mass.step(dt) for mass in @masses
