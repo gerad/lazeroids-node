@@ -20,8 +20,6 @@ $ ->
   }
   u.add s
   u.ship: s
-  for i in [0 .. 4]
-    u.add new Asteroid()
 
   u.start c
 
@@ -104,6 +102,9 @@ class Universe
   start: ->
     @loop()
 
+    @injectAsteroids 5
+    setInterval (@injectAsteroids <- this, 3), 5000
+
   loop: ->
     @step 1
     @render()
@@ -124,16 +125,19 @@ class Universe
 
     ctx.restore()
 
-  #injectAsteroids: (howMany) ->
-    #return if @masses.length > 80
-    #for i in [1 .. howMany || 1]
-      #var b = this._bounds, w = this._bounds.width, h = this._bounds.height;
-      #var inside = b.randomPosition();
-      #var outside = new Vector(w*Math.random()-w/2+b.l, h*Math.random()-h/2+b.t);
-      #if (outside.x > b.l) outside.x += w; if (outside.y > b.t) outside.y += h;
-      #var centripetal = inside.minus(outside).normalized().times(3 * Math.random() + 1);
+  injectAsteroids: (howMany) ->
+    return if @masses.length > 80
 
-      #@add(new Asteroid({ position: outside, velocity: centripetal }));
+    for i in [1 .. howMany || 1]
+      b: @bounds
+      [w, h]: [@bounds.width, @bounds.height]
+      outside: new Vector w*Math.random()-w/2+b.l, h*Math.random()-h/2+b.t
+      outside.x += w if outside.x > b.l
+      outside.y += h if outside.y > b.t
+      inside: b.randomPosition()
+      centripetal: inside.minus(outside).normalized().times(3*Math.random()+1)
+
+      @add new Asteroid { position: outside, velocity: centripetal }
 
 class Mass
   constructor: (options) ->
