@@ -193,6 +193,7 @@ class Connection
     o: new Observable()
     @trigger: o.trigger
     @bind: o.bind
+    @observers: o.observers
 
     @socket.addEvent 'message', (json) =>
       data: JSON.parse json
