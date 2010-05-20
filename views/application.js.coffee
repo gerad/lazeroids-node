@@ -4,7 +4,7 @@ $ ->
   con: new Connection()
   $('form').submit ->
     con.send $('input[type=text]', this).val()
-    this.reset()
+    @reset()
     false
   con.receive (data) ->
     $('#message').append "${data.msg}<br />"
@@ -19,6 +19,9 @@ $ ->
     position: new Vector c.width/2, c.height/2
   }
   u.add s
+  for i in [0 .. 4]
+    u.add new Asteroid()
+
   u.start c
 
   $(window).keydown (e) ->
@@ -70,7 +73,17 @@ class Universe
     ctx: @ctx
     ctx.clearRect 0, 0, @canvas.width, @canvas.height
     mass.render ctx for mass in @masses
-Lz.Universe: Universe
+
+  #injectAsteroids: (howMany) ->
+    #return if @masses.length > 80
+    #for i in [1 .. howMany || 1]
+      #var b = this._bounds, w = this._bounds.width, h = this._bounds.height;
+      #var inside = b.randomPosition();
+      #var outside = new Vector(w*Math.random()-w/2+b.l, h*Math.random()-h/2+b.t);
+      #if (outside.x > b.l) outside.x += w; if (outside.y > b.t) outside.y += h;
+      #var centripetal = inside.minus(outside).normalized().times(3 * Math.random() + 1);
+
+      #@add(new Asteroid({ position: outside, velocity: centripetal }));
 
 class Mass
   constructor: (options) ->
@@ -140,7 +153,30 @@ class Spaceship extends Mass
       @rotationalVelocity += Math.PI / 32
     else if (dir < 0 && @rotationalVelocity >= 0)
       @rotationalVelocity -= Math.PI / 32
-Lz.Spaceship: Spaceship
+
+class Asteroid extends Mass
+  RADIUS_BIG: 40
+  RADIUS_SMALL: 20
+
+  constructor: (options) ->
+    options: or {}
+    options.radius: or @RADIUS_BIG
+    options.velocity: or new Vector(6 * Math.random() - 3, 6 * Math.random() - 3)
+    options.rotationalVelocity: or Math.random() * 0.1 - 0.05
+
+    super options
+
+    unless (@points = options.points)?
+      l: 4 * Math.random() + 8
+      @points: new Vector(2 * Math.PI * i / l).times(@radius * Math.random() + @radius / 3) for i in [0 .. l]
+
+  _render: (ctx) ->
+    p: @points
+    ctx.beginPath()
+    ctx.moveTo p[0].x, p[0].y
+    ctx.lineTo p[i].x, p[i].y for i in [1 ... p.length]
+    ctx.closePath()
+    ctx.stroke()
 
 class Vector
   # can pass either x, y coords or radians for a unit vector
@@ -171,7 +207,6 @@ class Vector
   _zeroSmall: ->
     @x: 0 if Math.abs(@x) < 0.01
     @y: 0 if Math.abs(@y) < 0.01
-Lz.Vector: Vector
 
 class Connection
   constructor: ->
@@ -198,7 +233,6 @@ class Connection
     @socket.addEvent 'message', (json) =>
       data: JSON.parse json
       @trigger "message", data
-Lz.Connection: Connection
 
 class Observable
   bind: (name, fn) ->
