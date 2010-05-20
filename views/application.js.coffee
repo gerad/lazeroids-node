@@ -56,15 +56,15 @@ class Universe
     @masses.push mass
 
   start: ->
-    this.loop()
+    @loop()
 
   loop: ->
-    this.step 1
-    setTimeout this.loop <- this, 1000/24
+    @step 1
+    setTimeout @loop <- this, 1000/24
 
   step: (dt) ->
     mass.step dt for mass in @masses
-    this.render()
+    @render()
 
   render: ->
     ctx: @ctx
@@ -98,7 +98,7 @@ class Mass
 
     ctx.translate @position.x, @position.y
     ctx.rotate @rotation
-    this._render ctx
+    @_render ctx
 
     ctx.restore()
 
@@ -147,7 +147,7 @@ class Vector
     [@x, @y]: if y? then [x, y] else [Math.cos(x), Math.sin(x)]
     @x: or 0
     @y: or 0
-    this._zeroSmall()
+    @_zeroSmall()
 
   plus: (v) ->
     new Vector @x + v.x, @y + v.y
@@ -162,7 +162,7 @@ class Vector
     Math.sqrt @x * @x + @y * @y
 
   normalized: ->
-    this.times 1.0 / this.length()
+    @times 1.0 / @length()
 
   clone: ->
     new Vector @x, @y
@@ -174,32 +174,35 @@ Lz.Vector: Vector
 
 class Connection
   constructor: ->
-    @o: new Observable()
     @socket: new io.Socket null, {
       rememberTransport: false
       resource: 'comet'
       port: 8000
     }
-    this._setupObservers()
+    @_setupObservers()
     @socket.connect()
 
   send: (message) ->
     @socket.send message
 
   receive: (fn) ->
-    @o.bind "message", fn
+    @bind "message", fn
 
-  _setupObservers: (fn) ->
+  _setupObservers: () ->
+    o: new Observable()
+    @trigger: o.trigger
+    @bind: o.bind
+
     @socket.addEvent 'message', (json) =>
       data: JSON.parse json
-      @o.trigger "message", data
+      @trigger "message", data
 
 class Observable
   bind: (name, fn) ->
-    this.observers(name).push fn
+    @observers(name).push fn
 
   trigger: (name, args...) ->
-    callback args... for callback in this.observers(name)
+    callback args... for callback in @observers(name)
 
   observers: (name) ->
     (@_observers ||= {})[name] ||= []
