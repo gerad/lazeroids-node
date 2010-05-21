@@ -1,3 +1,2 @@
 #! /usr/bin/env bash
-coffee -co test/js test/*.coffee
-node lib/nodeunit/lib/testrunner.js test/js
+coffee test/*.coffee
