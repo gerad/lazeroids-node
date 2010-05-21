@@ -4,7 +4,7 @@ $ ->
   con: new Connection()
   $('form').submit ->
     con.send $('input[type=text]', this).val()
-    this.reset()
+    @reset()
     false
   con.receive (data) ->
     $('#message').append "${data.msg}<br />"
@@ -19,6 +19,8 @@ $ ->
     position: new Vector c.width/2, c.height/2
   }
   u.add s
+  u.ship: s
+
   u.start c
 
   $(window).keydown (e) ->
@@ -31,6 +33,11 @@ $ ->
         s.thrust()
       when 40  # down
         s.brake()
+      when 90  # z = zoom
+        if u.zoom == 1
+          u.zoom: 0.4
+        else
+          u.zoom: 1
 
   $(window).keyup (e) ->
     switch e.which
@@ -39,11 +46,54 @@ $ ->
       when 39  # right
         s.rotate(-1)
 
+class Bounds
+  BUFFER: 40
+
+  constructor: (canvas) ->
+    [@l, @t] = [0, 0]
+    @width = @r = canvas.width
+    @height = @b = canvas.height
+    @dx = @dy = 0
+
+  check: (ship) ->
+    p: ship.position
+
+    if p.x < @l+@BUFFER
+      @dx: -@width * 0.75
+    else if p.x > @r-@BUFFER
+      @dx: +@width * 0.75
+
+    if p.y < @t+@BUFFER
+      @dy: -@height * 0.75
+    else if p.y > @b-@BUFFER
+      @dy: +@height * 0.75
+
+    if @dx != 0
+      dx: parseInt @dx / 8
+      @l += dx; @r += dx
+      @dx -= dx
+      @dx: 0 if Math.abs(@dx) < 3
+
+    if @dy != 0
+      dy: parseInt @dy / 8
+      @t += dy; @b += dy
+      @dy -= dy
+      @dy: 0 if Math.abs(@dy) < 3
+
+  translate: (ctx) ->
+    ctx.translate(-@l, -@t)
+
+  randomPosition: ->
+    new Vector @width * Math.random() + @l, @height * Math.random() + @t
+
 class Universe
   constructor: (options) ->
     { canvas: @canvas }: options || {}
     @masses: []
     @tick: 0
+
+    @zoom: 1
+    @bounds: new Bounds @canvas
     @ctx: @canvas.getContext '2d'
     @ctx.lineCap: 'round'
     @ctx.lineJoin: 'round'
@@ -58,19 +108,45 @@ class Universe
   start: ->
     @loop()
 
+    @injectAsteroids 5
+    setInterval (@injectAsteroids <- this, 3), 5000
+
   loop: ->
     @step 1
+    @render()
     setTimeout @loop <- this, 1000/24
 
   step: (dt) ->
+    @tick += dt
     mass.step dt for mass in @masses
-    @render()
+    @bounds.check @ship
 
   render: ->
     ctx: @ctx
     ctx.clearRect 0, 0, @canvas.width, @canvas.height
+    ctx.save()
+
+    if @zoom != 1
+      ctx.scale @zoom, @zoom
+      ctx.translate @bounds.width*0.75, @bounds.height*0.75
+    @bounds.translate ctx
     mass.render ctx for mass in @masses
-Lz.Universe: Universe
+
+    ctx.restore()
+
+  injectAsteroids: (howMany) ->
+    return if @masses.length > 80
+
+    for i in [1 .. howMany || 1]
+      b: @bounds
+      [w, h]: [@bounds.width, @bounds.height]
+      outside: new Vector w*Math.random()-w/2+b.l, h*Math.random()-h/2+b.t
+      outside.x += w if outside.x > b.l
+      outside.y += h if outside.y > b.t
+      inside: b.randomPosition()
+      centripetal: inside.minus(outside).normalized().times(3*Math.random()+1)
+
+      @add new Asteroid { position: outside, velocity: centripetal }
 
 class Mass
   constructor: (options) ->
@@ -140,7 +216,30 @@ class Spaceship extends Mass
       @rotationalVelocity += Math.PI / 32
     else if (dir < 0 && @rotationalVelocity >= 0)
       @rotationalVelocity -= Math.PI / 32
-Lz.Spaceship: Spaceship
+
+class Asteroid extends Mass
+  RADIUS_BIG: 40
+  RADIUS_SMALL: 20
+
+  constructor: (options) ->
+    options: or {}
+    options.radius: or @RADIUS_BIG
+    options.velocity: or new Vector(6 * Math.random() - 3, 6 * Math.random() - 3)
+    options.rotationalVelocity: or Math.random() * 0.1 - 0.05
+
+    super options
+
+    unless (@points = options.points)?
+      l: 4 * Math.random() + 8
+      @points: new Vector(2 * Math.PI * i / l).times(@radius * Math.random() + @radius / 3) for i in [0 .. l]
+
+  _render: (ctx) ->
+    p: @points
+    ctx.beginPath()
+    ctx.moveTo p[0].x, p[0].y
+    ctx.lineTo p[i].x, p[i].y for i in [1 ... p.length]
+    ctx.closePath()
+    ctx.stroke()
 
 class Vector
   # can pass either x, y coords or radians for a unit vector
@@ -171,7 +270,6 @@ class Vector
   _zeroSmall: ->
     @x: 0 if Math.abs(@x) < 0.01
     @y: 0 if Math.abs(@y) < 0.01
-Lz.Vector: Vector
 
 class Connection
   constructor: ->
@@ -193,11 +291,11 @@ class Connection
     o: new Observable()
     @trigger: o.trigger
     @bind: o.bind
+    @observers: o.observers
 
     @socket.addEvent 'message', (json) =>
       data: JSON.parse json
       @trigger "message", data
-Lz.Connection: Connection
 
 class Observable
   bind: (name, fn) ->
