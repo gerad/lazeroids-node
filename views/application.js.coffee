@@ -17,6 +17,8 @@ class Controller
   setupKeys: ->
     $(window).keydown (e) =>
       switch e.which
+        when 32 # space bar = shoot
+          @ship.shoot()
         when 37  # left
           @ship.rotate(-1)
         when 39  # right
@@ -40,7 +42,7 @@ class Controller
 
   start: ->
     @universe: new Universe { canvas: @canvas }
-    @ship: new Spaceship {
+    @ship: new Ship {
       position: new Vector @canvas.width/2, @canvas.height/2
       rotation: -Math.PI / 2
     }
@@ -163,6 +165,14 @@ class Universe
         @ship.explode()
         break
 
+    # bullet collisions
+    for b in @ship.bullets
+      for m in @masses
+        if m.overlaps b
+          m.explode()
+          b.explode()
+          break
+
 class Mass
   constructor: (options) ->
     o: options or {}
@@ -213,11 +223,13 @@ class Mass
     ctx.stroke()
     ctx.restore()
 
-class Spaceship extends Mass
+class Ship extends Mass
   constructor: (options) ->
     options: or {}
     options.radius: or 16
     super options
+
+    @bullets: []
 
   _render: (ctx) ->
     ctx.save()
@@ -234,6 +246,15 @@ class Spaceship extends Mass
 
   brake: ->
     @acceleration: @acceleration.plus(new Vector(@rotation).times(-1))
+
+  shoot: ->
+    p: new Vector(@rotation)
+    b: new Bullet { ship: this }
+    @universe.add b
+    @bullets.push b
+
+  removeBullet: (b) ->
+    @bullets: _.without @bullets, b
 
   rotate: (dir) ->
     if (dir > 0 && @rotationalVelocity <= 0)
@@ -261,13 +282,40 @@ class Asteroid extends Mass
 
   step: (dt) ->
     super dt
-    @universe.remove this if --@lifetime < 0
+    @universe.remove this if (@lifetime -= dt) < 0
 
   _render: (ctx) ->
     p: @points
     ctx.beginPath()
     ctx.moveTo p[0].x, p[0].y
     ctx.lineTo p[i].x, p[i].y for i in [1 ... p.length]
+    ctx.closePath()
+    ctx.stroke()
+
+class Bullet extends Mass
+  constructor: (options) ->
+    @ship: options.ship
+    @lifetime: 24 * 4
+    rotation: new Vector(@ship.rotation).times(@ship.radius)
+
+    options: or {}
+    options.radius: or 2
+    options.position: or @ship.position.plus rotation
+    options.velocity: new Vector(@ship.rotation).times(10)
+
+    super options
+
+  step: (dt) ->
+    super dt
+    @explode if (@lifetime -= dt) < 0
+
+  explode: ->
+    super()
+    @ship.removeBullet this
+
+  _render: (ctx) ->
+    ctx.beginPath()
+    ctx.arc 0, 0, @radius, 0, Math.PI * 2, true
     ctx.closePath()
     ctx.stroke()
 
