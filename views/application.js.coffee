@@ -248,14 +248,20 @@ class Asteroid extends Mass
   constructor: (options) ->
     options: or {}
     options.radius: or @RADIUS_BIG
-    options.velocity: or new Vector(6 * Math.random() - 3, 6 * Math.random() - 3)
+    options.velocity: or new Vector(4 * Math.random() - 3, 6 * Math.random() - 3)
     options.rotationalVelocity: or Math.random() * 0.1 - 0.05
 
     super options
 
+    @lifetime = 24 * 60 * 5
+
     unless (@points = options.points)?
       l: 4 * Math.random() + 8
       @points: new Vector(2 * Math.PI * i / l).times(@radius * Math.random() + @radius / 3) for i in [0 .. l]
+
+  step: (dt) ->
+    super dt
+    @universe.remove this if --@lifetime < 0
 
   _render: (ctx) ->
     p: @points
