@@ -280,6 +280,17 @@ class Asteroid extends Mass
       l: 4 * Math.random() + 8
       @points: new Vector(2 * Math.PI * i / l).times(@radius * Math.random() + @radius / 3) for i in [0 .. l]
 
+  explode: ->
+    if @radius > @RADIUS_SMALL
+      for i in [0 .. parseInt(Math.random()*2)+2]
+        a: new Asteroid {
+          radius: @RADIUS_SMALL
+          position: @position.clone()
+        }
+        @universe.add a
+    #@universe.add(new Lz.Explosion({ from: this }))
+    super()
+
   step: (dt) ->
     super dt
     @universe.remove this if (@lifetime -= dt) < 0
