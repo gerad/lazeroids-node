@@ -123,7 +123,7 @@ class Universe
   loop: ->
     @step 1
     @render()
-    setTimeout @loop <- this, 1000/24
+    setTimeout (@loop <- this), 1000/24
 
   step: (dt) ->
     @tick += dt
@@ -258,9 +258,9 @@ class Ship extends Mass
 
   rotate: (dir) ->
     if (dir > 0 && @rotationalVelocity <= 0)
-      @rotationalVelocity += Math.PI / 32
+      @rotationalVelocity += Math.PI / 16
     else if (dir < 0 && @rotationalVelocity >= 0)
-      @rotationalVelocity -= Math.PI / 32
+      @rotationalVelocity -= Math.PI / 16
 
 class Asteroid extends Mass
   RADIUS_BIG: 40
@@ -269,7 +269,7 @@ class Asteroid extends Mass
   constructor: (options) ->
     options: or {}
     options.radius: or @RADIUS_BIG
-    options.velocity: or new Vector(4 * Math.random() - 3, 6 * Math.random() - 3)
+    options.velocity: or new Vector(6 * Math.random() - 3, 6 * Math.random() - 3)
     options.rotationalVelocity: or Math.random() * 0.1 - 0.05
 
     super options
