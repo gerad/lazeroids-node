@@ -4,7 +4,10 @@ get '/', ->
   @render 'index.html.haml'
 
 get '/*.js', (file) ->
-  @render "${file}.js.coffee", { layout: false }
+  try
+    @render "${file}.js.coffee", { layout: false }
+  catch e
+    @pass "/${file}.js"
 
 get '/*.css', (file) ->
   @render "${file}.css.sass", { layout: false }

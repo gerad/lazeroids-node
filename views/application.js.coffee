@@ -107,6 +107,10 @@ class Universe
 
   add: (mass) ->
     @masses.push mass
+    mass.universe = this
+
+  remove: (mass) ->
+    @masses: _.without @masses, mass
 
   start: ->
     @loop()
@@ -122,6 +126,7 @@ class Universe
   step: (dt) ->
     @tick += dt
     mass.step dt for mass in @masses
+    @checkCollisions()
     @bounds.check @ship
 
   render: ->
@@ -151,6 +156,13 @@ class Universe
 
       @add new Asteroid { position: outside, velocity: centripetal }
 
+  checkCollisions: ->
+    # ship collisions
+    for m in @masses
+      if m.overlaps @ship
+        @ship.explode()
+        break
+
 class Mass
   constructor: (options) ->
     o: options or {}
@@ -161,6 +173,15 @@ class Mass
     @acceleration: o.acceleration or new Vector()
     @rotation: o.rotation or 0
     @rotationalVelocity: o.rotationalVelocity or 0
+
+  explode: ->
+    this.universe.remove this
+
+  overlaps: (other) ->
+    return false if other == this
+    diff: other.position.minus(@position).length()
+
+    diff < @radius or diff < other.radius
 
   step: (dt) ->
     @tick += dt
