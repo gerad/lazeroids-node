@@ -1,50 +1,53 @@
 this.exports = this.Lz = {}
 
-$ ->
-  con: new Connection()
-  $('form').submit ->
-    con.send $('input[type=text]', this).val()
-    @reset()
-    false
-  con.receive (data) ->
-    $('#message').append "${data.msg}<br />"
+$ -> new Controller $('canvas').get(0)
 
-  $('input:first').select()
+class Controller
+  constructor: (canvas) ->
+    @canvas: canvas
+    @conn: new Connection()
 
-  c = $('canvas').get 0
-  [c.width, c.height]: [$(window).width()-3, $(window).height()-3]
+    @setupCanvas()
+    @setupKeys()
+    @start()
 
-  u: new Universe { canvas: c }
-  s: new Spaceship {
-    position: new Vector c.width/2, c.height/2
-  }
-  u.add s
-  u.ship: s
+  setupCanvas: ->
+    [@canvas.width, @canvas.height]: [$(window).width()-3, $(window).height()-3]
 
-  u.start c
+  setupKeys: ->
+    $(window).keydown (e) =>
+      switch e.which
+        when 37  # left
+          @ship.rotate(-1)
+        when 39  # right
+          @ship.rotate(+1)
+        when 38  # up
+          @ship.thrust()
+        when 40  # down
+          @ship.brake()
+        when 90  # z = zoom
+          if @universe.zoom == 1
+            @universe.zoom: 0.4
+          else
+            @universe.zoom: 1
 
-  $(window).keydown (e) ->
-    switch e.which
-      when 37  # left
-        s.rotate(-1)
-      when 39  # right
-        s.rotate(+1)
-      when 38  # up
-        s.thrust()
-      when 40  # down
-        s.brake()
-      when 90  # z = zoom
-        if u.zoom == 1
-          u.zoom: 0.4
-        else
-          u.zoom: 1
+    $(window).keyup (e) =>
+      switch e.which
+        when 37  # left
+          @ship.rotate(+1)
+        when 39  # right
+          @ship.rotate(-1)
 
-  $(window).keyup (e) ->
-    switch e.which
-      when 37  # left
-        s.rotate(+1)
-      when 39  # right
-        s.rotate(-1)
+  start: ->
+    @universe: new Universe { canvas: @canvas }
+    @ship: new Spaceship {
+      position: new Vector @canvas.width/2, @canvas.height/2
+      rotation: -Math.PI / 2
+    }
+    @universe.add @ship
+    @universe.ship: @ship
+
+    @universe.start()
 
 class Bounds
   BUFFER: 40
