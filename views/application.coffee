@@ -1,6 +1,4 @@
-this.exports = this.Lz = {}
-
-$ -> new Controller $('canvas').get(0)
+Lz: if process? then exports else this.Lz: {}
 
 class Controller
   constructor: (canvas) ->
@@ -50,6 +48,7 @@ class Controller
     @universe.ship: @ship
 
     @universe.start()
+Lz.Controller: Controller
 
 class Bounds
   BUFFER: 40
@@ -385,6 +384,7 @@ class Connection
     @socket.addEvent 'message', (json) =>
       data: JSON.parse json
       @trigger "message", data
+Lz.Connection: Connection
 
 class Observable
   bind: (name, fn) ->
