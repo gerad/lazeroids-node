@@ -1,5 +1,6 @@
 sys: require 'sys'
 nodeunit: require '../../nodeunit/lib/nodeunit'
+assert: require 'assert'
 
 red:   (str) -> "\033[31m$str\033[39m"
 green: (str) -> "\033[32m$str\033[39m"
@@ -9,12 +10,13 @@ class Mock
   constructor: ->
     @expectations = []
   expect: (name, fn) ->
-    this[name] = @mockFn(name)
-    @expectations.push fn
+    this[name]: or @mockFn(name)
+    @expectations.push [name, fn]
     this
   mockFn: (calledName) ->
     return (args...) ->
-      fn = @expectations.pop
+      [name, fn] = @expectations.pop()
+      assert.equal name, calledName, "Mock expected $name to be called. Got $calledName."
       fn(args...) if fn?
 exports.Mock: Mock
 

@@ -373,12 +373,12 @@ class Connection
     @socket.send message
 
   receive: (fn) ->
-    @bind "message", fn
+    @observe "message", fn
 
   _setupObservers: () ->
     o: new Observable()
     @trigger: o.trigger
-    @bind: o.bind
+    @observe: o.observe
     @observers: o.observers
 
     @socket.addEvent 'message', (json) =>
@@ -387,7 +387,7 @@ class Connection
 Lz.Connection: Connection
 
 class Observable
-  bind: (name, fn) ->
+  observe: (name, fn) ->
     @observers(name).push fn
 
   trigger: (name, args...) ->
@@ -395,3 +395,4 @@ class Observable
 
   observers: (name) ->
     (@_observers ||= {})[name] ||= []
+Lz.Observable: Observable
