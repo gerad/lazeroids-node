@@ -1,5 +1,12 @@
 helpers.extend global, require('./test-helper')
 
+mockSocket: null
+before ->
+  mockSocket: new MockSocket()
+  this.io: {
+    Socket: -> mockSocket
+  }
+
 test "exists", (t) ->
   t.expect 2
   t.ok Lz, "Lz exists"
@@ -44,14 +51,5 @@ class MockSocket extends Mock
   sendMessage: (msg) ->
     data: JSON.stringify msg
     @o.trigger 'message', data
-
-mockSocket: null
-before ->
-  mockSocket: new MockSocket()
-
-  this.io: {
-    Socket: ->
-      mockSocket
-  }
 
 run()
