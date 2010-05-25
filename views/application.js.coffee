@@ -173,6 +173,7 @@ class Universe
           m.explode()
           b.explode()
           break
+Lz.Universe: Universe
 
 class Mass
   constructor: (options) ->
