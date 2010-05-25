@@ -97,16 +97,7 @@ class Universe
     { canvas: @canvas }: options || {}
     @masses: []
     @tick: 0
-
     @zoom: 1
-    @bounds: new Bounds @canvas
-    @ctx: @canvas.getContext '2d'
-    @ctx.lineCap: 'round'
-    @ctx.lineJoin: 'round'
-    @ctx.strokeStyle: 'rgb(255,255,255)'
-    @ctx.fillStyle: 'rgb(255,255,255)'
-    @ctx.font: '9pt Monaco, Monospace'
-    @ctx.textAlign: 'center'
 
   add: (mass) ->
     @masses.push mass
@@ -116,6 +107,7 @@ class Universe
     @masses: _.without @masses, mass
 
   start: ->
+    @setupCanvas()
     @loop()
 
     @injectAsteroids 5
@@ -173,6 +165,16 @@ class Universe
           m.explode()
           b.explode()
           break
+
+  setupCanvas: ->
+    @bounds: new Bounds @canvas
+    @ctx: @canvas.getContext '2d'
+    @ctx.lineCap: 'round'
+    @ctx.lineJoin: 'round'
+    @ctx.strokeStyle: 'rgb(255,255,255)'
+    @ctx.fillStyle: 'rgb(255,255,255)'
+    @ctx.font: '9pt Monaco, Monospace'
+    @ctx.textAlign: 'center'
 Lz.Universe: Universe
 
 class Mass
@@ -224,6 +226,7 @@ class Mass
     ctx.closePath()
     ctx.stroke()
     ctx.restore()
+Lz.Mass: Mass
 
 class Ship extends Mass
   constructor: (options) ->
