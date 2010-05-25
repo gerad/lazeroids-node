@@ -5,7 +5,7 @@ get '/', ->
 
 get '/*.js', (file) ->
   try
-    @render "${file}.coffee", { layout: false }
+    @render "${file}.js.coffee", { layout: false }
   catch e
     @pass "/${file}.js"
 
