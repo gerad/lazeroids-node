@@ -420,8 +420,8 @@ class Connection
 
   setupObservers: () ->
     o: new Observable()
-    @trigger: o.trigger
-    @observe: o.observe
+    @trigger: o.trigger <- o
+    @observe: o.observe <- o
 
     @socket.addEvent 'message', (json) =>
       data: JSON.parse json
