@@ -63,16 +63,20 @@ class Bounds
 
   check: (ship) ->
     p: ship.position
+    flip: false
 
     if p.x < @l+@BUFFER
-      @dx: -@width * 0.75
+      @dx: -@width * 0.75; flip: true
     else if p.x > @r-@BUFFER
-      @dx: +@width * 0.75
+      @dx: +@width * 0.75; flip: true
 
     if p.y < @t+@BUFFER
-      @dy: -@height * 0.75
+      @dy: -@height * 0.75; flip: true
     else if p.y > @b-@BUFFER
-      @dy: +@height * 0.75
+      @dy: +@height * 0.75; flip: true
+
+    if flip
+      play('flip')
 
     if @dx != 0
       dx: parseInt @dx / 8
@@ -192,7 +196,7 @@ class Mass
     this.universe.remove this
 
   overlaps: (other) ->
-    return false if other == this
+    return false if other == this || other.TYPE == 'Explosion'
     diff: other.position.minus(@position).length()
 
     diff < @radius or diff < other.radius
@@ -293,7 +297,7 @@ class Asteroid extends Mass
           position: @position.clone()
         }
         @universe.add a
-    #@universe.add(new Lz.Explosion({ from: this }))
+    @universe.add(new Explosion({ from: this }))
     super()
 
   step: (dt) ->
@@ -336,6 +340,33 @@ class Bullet extends Mass
     ctx.arc 0, 0, @radius, 0, Math.PI * 2, true
     ctx.closePath()
     ctx.stroke()
+
+class Explosion extends Mass
+  TYPE: 'Explosion'
+  STRINGS: ['BOOM!', 'POW!', 'KAPOW!', 'BAM!', 'EXPLODE!']
+
+  constructor: (options) ->
+    if options.from
+      options.position: options.from.position
+      options.velocity: options.from.velocity
+
+    super(options)
+
+    @text: @STRINGS[parseInt(Math.random()*@STRINGS.length)]
+    @lifetime: 36  # frames
+    play('explode')
+
+  overlaps: (other) ->
+    false
+
+  step: (dt) ->
+    super(dt)
+    if @lifetime-- < 0
+      @explode()
+
+  _render: (ctx) ->
+    if 'fillText' in ctx
+      ctx.fillText(@text, 0, 0)
 
 class Vector
   # can pass either x, y coords or radians for a unit vector
