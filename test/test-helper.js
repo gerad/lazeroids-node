@@ -1,4 +1,4 @@
-require('../lib/coffee/lib/coffee-script/lib/coffee-script');
+require('../lib/coffee/lib/coffee');
 !function() {
   var helpers = exports.helpers = require('../lib/coffee/lib/coffee-script/lib/helpers').helpers;
   helpers.extend(exports, require('../lib/coffee/lib/coffee-test'));
