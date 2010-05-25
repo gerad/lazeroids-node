@@ -370,7 +370,7 @@ class Connection
       resource: 'comet'
       port: 8000
     }
-    @_setupObservers()
+    @setupObservers()
     @socket.connect()
 
   send: (message) ->
@@ -379,7 +379,7 @@ class Connection
   receive: (fn) ->
     @observe "message", fn
 
-  _setupObservers: () ->
+  setupObservers: () ->
     o: new Observable()
     @trigger: o.trigger
     @observe: o.observe
