@@ -40,14 +40,22 @@ class Controller
         when 39  # right
           @ship.rotate(-1)
 
-  start: ->
-    @universe: new Universe { canvas: @canvas }
+  buildShip: (universe) ->
+    [w, h]: [@canvas.width, @canvas.height]
+    [x, y]: [Math.random() * w/2 + w/4, Math.random() * h/2 + h/4]
+
     @ship: new Ship {
-      position: new Vector @canvas.width/2, @canvas.height/2
+      position: new Vector x, y
       rotation: -Math.PI / 2
     }
-    @universe.add @ship
-    @universe.ship: @ship
+    @ship.observe 'explode', @buildShip <- this, universe
+
+    universe.add @ship
+    universe.ship: @ship
+
+  start: ->
+    @universe: new Universe { canvas: @canvas }
+    @buildShip @universe
 
     @universe.start()
 Lz.Controller: Controller
@@ -57,8 +65,7 @@ class Bounds
 
   constructor: (canvas) ->
     [@l, @t]: [0, 0]
-    @width: @r: canvas.width
-    @height: @b: canvas.height
+    [@r, @b]: [@width, @height]: [canvas.width, canvas.height]
     @dx: @dy: 0
 
   check: (ship) ->
@@ -242,6 +249,12 @@ class Ship extends Mass
     super options
 
     @bullets: []
+    _.extend(this, new Observable())
+
+  explode: ->
+    super()
+    @universe.add(new Explosion({ from: this }))
+    @trigger('explode')
 
   _render: (ctx) ->
     ctx.save()
@@ -293,6 +306,7 @@ class Asteroid extends Mass
       @points: new Vector(2 * Math.PI * i / l).times(@radius * Math.random() + @radius / 3) for i in [0 .. l]
 
   explode: ->
+    super()
     if @radius > @RADIUS_SMALL
       for i in [0 .. parseInt(Math.random()*2)+2]
         a: new Asteroid {
@@ -301,7 +315,6 @@ class Asteroid extends Mass
         }
         @universe.add a
     @universe.add(new Explosion({ from: this }))
-    super()
 
   step: (dt) ->
     super dt
@@ -324,7 +337,7 @@ class Bullet extends Mass
     options: or {}
     options.radius: or 2
     options.position: or @ship.position.plus rotation
-    options.velocity: new Vector(@ship.rotation).times(10)
+    options.velocity: new Vector(@ship.rotation).times(12)
 
     super options
 
