@@ -122,9 +122,10 @@ class Universe
     @tick += dt
     mass.step dt for mass in @masses
     @checkCollisions()
-    @bounds.check @ship
 
   render: ->
+    @bounds.check @ship
+
     ctx: @ctx
     ctx.clearRect 0, 0, @canvas.width, @canvas.height
     ctx.save()
@@ -152,6 +153,8 @@ class Universe
       @add new Asteroid { position: outside, velocity: centripetal }
 
   checkCollisions: ->
+    return unless @ship?
+
     # ship collisions
     for m in @masses
       if m.overlaps @ship
@@ -366,6 +369,7 @@ class Vector
   _zeroSmall: ->
     @x: 0 if Math.abs(@x) < 0.01
     @y: 0 if Math.abs(@y) < 0.01
+Lz.Vector: Vector
 
 class Connection
   constructor: ->
@@ -387,7 +391,6 @@ class Connection
     o: new Observable()
     @trigger: o.trigger
     @observe: o.observe
-    @observers: o.observers
 
     @socket.addEvent 'message', (json) =>
       data: JSON.parse json
