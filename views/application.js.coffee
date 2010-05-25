@@ -10,7 +10,7 @@ class Controller
     @start()
 
   setupCanvas: ->
-    [@canvas.width, @canvas.height]: [$(window).width()-3, $(window).height()-3]
+    [@canvas.width, @canvas.height]: [$(window).width()-5, $(window).height()-5]
 
   setupKeys: ->
     $(window).keydown (e) =>
@@ -28,8 +28,10 @@ class Controller
         when 90  # z = zoom
           if @universe.zoom == 1
             @universe.zoom: 0.4
+            play('zoom_out')
           else
             @universe.zoom: 1
+            play('zoom_in')
 
     $(window).keyup (e) =>
       switch e.which
@@ -315,6 +317,8 @@ class Bullet extends Mass
 
     super options
 
+    play('shoot')
+
   step: (dt) ->
     super dt
     @explode if (@lifetime -= dt) < 0
@@ -396,3 +400,23 @@ class Observable
   observers: (name) ->
     (@_observers ||= {})[name] ||= []
 Lz.Observable: Observable
+
+class Sound
+  constructor: (preload) ->
+    @base: 'http://lazeroids.com.s3.amazonaws.com/'
+    @sounds: {}
+    @load(s) for s in preload || []
+
+  load: (sound) ->
+    unless sound in @sounds
+      @sounds[sound]: s: new Audio(@base + sound + '.mp3')
+    @sounds[sound]
+
+  play: (sound, options) ->
+    s: @load(sound)
+    if s.currentTime == 0
+      s.play()
+    else
+      s.currentTime: 0
+    s
+Lz.play: play: Sound.prototype.play <- new Sound(['explode', 'flip', 'shoot', 'warp', 'zoom_in', 'zoom_out'])
