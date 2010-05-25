@@ -56,10 +56,10 @@ class Bounds
   BUFFER: 40
 
   constructor: (canvas) ->
-    [@l, @t] = [0, 0]
-    @width = @r = canvas.width
-    @height = @b = canvas.height
-    @dx = @dy = 0
+    [@l, @t]: [0, 0]
+    @width: @r: canvas.width
+    @height: @b: canvas.height
+    @dx: @dy: 0
 
   check: (ship) ->
     p: ship.position
@@ -110,7 +110,7 @@ class Universe
 
   add: (mass) ->
     @masses.push mass
-    mass.universe = this
+    mass.universe: this
 
   remove: (mass) ->
     @masses: _.without @masses, mass
@@ -275,9 +275,9 @@ class Asteroid extends Mass
 
     super options
 
-    @lifetime = 24 * 60 * 5
+    @lifetime: 24 * 60 * 5
 
-    unless (@points = options.points)?
+    unless (@points: options.points)?
       l: 4 * Math.random() + 8
       @points: new Vector(2 * Math.PI * i / l).times(@radius * Math.random() + @radius / 3) for i in [0 .. l]
 
