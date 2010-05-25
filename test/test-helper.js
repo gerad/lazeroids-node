@@ -4,6 +4,11 @@ require('../lib/coffee/lib/coffee');
   helpers.extend(exports, require('../lib/coffee/lib/coffee-test'));
 
   require('../public/javascripts/underscore');
+
+  // mock out audio for headless testing
+  this.Audio = function() {};
+  this.Audio.prototype.play = function() {};
+
   exports.Lz = require('../views/application');
   exports.sys = require('sys');
 }();
