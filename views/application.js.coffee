@@ -152,7 +152,8 @@ class IOQueue
       @inbox: @inbox.concat data
 
 class MassStorage
-  constructor: ->
+  constructor: (universe) ->
+    @universe: universe
     @items: {}
     @length: 0
 
@@ -165,6 +166,7 @@ class MassStorage
 
   update: (mass) ->
     @length++ unless @find(mass)?
+    mass.universe: @universe
     @items[mass.id]: mass
 
   remove: (mass) ->
@@ -185,7 +187,6 @@ class Universe
     @io.send action, mass
 
   add: (mass) ->
-    mass.universe: this
     @masses.add mass
     status { objects: @masses.length }
     @send 'add', mass
