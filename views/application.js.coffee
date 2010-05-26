@@ -526,6 +526,7 @@ _.extend Serializer, {
 
     # add reference to the prototype
     klass::pack: (args...) -> s.pack(this, args...)
+    klass::toJSON: klass::pack
 
   unpack: (data) ->
     return data unless data.serialize?
