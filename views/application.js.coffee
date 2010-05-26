@@ -318,6 +318,7 @@ class Asteroid extends Mass
     options: or {}
     options.radius: or @RADIUS_BIG
     options.velocity: or new Vector(6 * Math.random() - 3, 6 * Math.random() - 3)
+    options.position: options.position.plus options.velocity.times(10)
     options.rotationalVelocity: or Math.random() * 0.1 - 0.05
 
     super options
