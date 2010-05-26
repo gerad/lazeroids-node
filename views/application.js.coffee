@@ -123,17 +123,48 @@ class Bounds
   randomPosition: ->
     new Vector @width * Math.random() + @l, @height * Math.random() + @t
 
+class IOQueue
+  constructor: ->
+    @outbox: []
+    @inbox: []
+    @silent: false
+
+  silently: (fn) ->
+    @silent: true
+    fn()
+    @silent: false
+
+  send: (obj) ->
+    @outbox.push obj unless @silent
+
+  flush: ->
+    @con.send @outbox
+    @outbox: []
+
+  read: ->
+    ret: @inbox
+    @inbox: []
+    ret
+
+  connect: ->
+    @con: new Connection()
+    @con.receive (data) =>
+      @inbox: @inbox.concat data
+    @flush()
+
 class Universe
   constructor: (options) ->
     { canvas: @canvas }: options || {}
     @masses: []
     @tick: 0
     @zoom: 1
+    @io: new IOQueue()
 
   add: (mass) ->
     @masses.push mass
     mass.universe: this
     status { objects: @masses.length }
+    @io.send { add: mass }
 
   remove: (mass) ->
     @masses: _.without @masses, mass
@@ -141,12 +172,14 @@ class Universe
 
   start: ->
     @setupCanvas()
+    @setupConnection()
     @loop()
 
     @injectAsteroids 5
     setInterval (@injectAsteroids <- this, 3), 5000
 
   loop: ->
+    @network()
     @step 1
     @render()
     setTimeout (@loop <- this), 1000/24
@@ -155,6 +188,15 @@ class Universe
     @tick += dt
     mass.step dt for mass in @masses
     @checkCollisions()
+
+  network: ->
+    @io.silently =>
+      @perform action for action in @io.read()
+    @io.flush()
+
+  perform: (action) ->
+    for method, data of action
+      this[method] Serializer.unpack data
 
   render: ->
     @bounds.check @ship
@@ -211,6 +253,9 @@ class Universe
     @ctx.fillStyle: 'rgb(255,255,255)'
     @ctx.font: '9pt Monaco, Monospace'
     @ctx.textAlign: 'center'
+
+  setupConnection: ->
+    @io.connect()
 Lz.Universe: Universe
 
 class Mass
