@@ -1,2 +1,2 @@
 #! /usr/bin/env bash
-coffee test/*.coffee
+for f in test/*.coffee; do coffee $f; done
