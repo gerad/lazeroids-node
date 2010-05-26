@@ -535,7 +535,6 @@ class Observable
     (@_observers ||= {})[name] ||= []
 Lz.Observable: Observable
 
-
 class Serializer
   constructor: (klass) ->
     [type, options]: _.flatten [klass::serialize]
