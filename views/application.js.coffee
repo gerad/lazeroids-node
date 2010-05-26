@@ -499,13 +499,15 @@ class Serializer
   shouldSerialize: (name, value) ->
     @allowed[name] ?= _.isString(value) or _.isNumber(value) or _.isBoolean(value) or value.serialize?
 
-  pack: (instance, nested) ->
-    return if nested and !@allowNesting
+  pack: (instance) ->
+    return if Serializer.nesting and !@allowNesting
     packed: { serialize: @type }
     for k, v of instance
       if @shouldSerialize(k, v)
         if v.serialize?
-          v: v.pack(true)
+          Serializer.nesting: true
+          v: v.pack()
+          Serializer.nesting: false
           packed[k]: v if v
         else
           packed[k]: v

@@ -39,6 +39,14 @@ test "bullet does not include ship", (t) ->
   t.ok !b.pack().ship?, 'ship is not serialized'
   t.done()
 
+test "mass in object", (t) ->
+  m: new Lz.Mass()
+  j: JSON.parse JSON.stringify { add: m }
+
+  t.expect 1
+  t.ok j.add, 'data still added'
+  t.done()
+
 NameSpace: {}
 
 class Milk
