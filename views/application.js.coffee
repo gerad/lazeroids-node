@@ -29,10 +29,10 @@ class Controller
         when 90  # z = zoom
           if @universe.zoom == 1
             @universe.zoom: 0.4
-            play('zoom_out')
+            play 'zoom_out'
           else
             @universe.zoom: 1
-            play('zoom_in')
+            play 'zoom_in'
 
     $(window).keyup (e) =>
       switch e.which
@@ -103,7 +103,7 @@ class Bounds
       @dy: +@height * 0.75; flip: true
 
     if flip
-      play('flip')
+      play 'flip'
 
     if @dx != 0
       dx: parseInt @dx / 8
@@ -177,6 +177,8 @@ class Universe
 
     @injectAsteroids 5
     setInterval (@injectAsteroids <- this, 3), 5000
+
+    play 'ambient', { loop: true }
 
   loop: ->
     @network()
@@ -420,7 +422,7 @@ class Bullet extends Mass
 
     super options
 
-    play('shoot')
+    play 'shoot'
 
   step: (dt) ->
     super dt
@@ -449,7 +451,7 @@ class Explosion extends Mass
 
     @text: @STRINGS[parseInt(Math.random()*@STRINGS.length)]
     @lifetime: 36  # frames
-    play('explode')
+    play 'explode'
 
   solid: false
   overlaps: (other) ->
@@ -591,23 +593,26 @@ Lz.Serializer: Serializer
 Serializer.blessAll(Lz)
 
 class Sound
-  constructor: (preload) ->
+  constructor: (preload, options) ->
     @base: 'http://lazeroids.com.s3.amazonaws.com/'
+    @options: options
     @sounds: {}
     @load(s) for s in preload || []
 
   load: (sound) ->
     unless sound in @sounds
-      @sounds[sound]: s: new Audio(@base + sound + '.mp3')
+      @sounds[sound]: new Audio @base + sound + '.mp3'
+      _.extend @sounds[sound], @options
     @sounds[sound]
 
   play: (sound, options) ->
     s: @load(sound)
+    _.extend s, options
     if s.currentTime == 0
       s.play()
     else
       s.currentTime: 0
     s
-Lz.play: play: Sound.prototype.play <- new Sound(['explode', 'flip', 'shoot', 'warp', 'zoom_in', 'zoom_out'])
+Lz.play: play: Sound.prototype.play <- new Sound(['ambient', 'explode', 'flip', 'shoot', 'warp', 'zoom_in', 'zoom_out'], { volume: 0.25 })
 
 Lz.status: status: (msg) -> $('#status .' + k).text v for k, v of msg if $?
