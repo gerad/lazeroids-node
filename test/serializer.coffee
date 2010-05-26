@@ -28,6 +28,17 @@ test "universe excluded", (t) ->
   t.ok !data.universe?, 'universe is not serialized'
   t.done()
 
+test "bullet does not include ship", (t) ->
+  u: new Lz.Universe()
+  s: new Lz.Ship()
+  u.add s
+  s.shoot()
+  b: s.bullets[0]
+
+  t.expect 1
+  t.ok !b.pack().ship?, 'ship is not serialized'
+  t.done()
+
 NameSpace: {}
 
 class Milk

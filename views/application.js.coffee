@@ -315,6 +315,7 @@ class Ship extends Mass
       @rotationalVelocity -= Math.PI / 16
     else if dir == 0
       @rotationalVelocity: 0
+Lz.Ship: Ship
 
 class Asteroid extends Mass
   serialize: 'Asteroid'
