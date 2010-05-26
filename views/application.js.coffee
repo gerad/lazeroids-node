@@ -214,6 +214,8 @@ class Universe
 Lz.Universe: Universe
 
 class Mass
+  serialize: 'Mass'
+
   constructor: (options) ->
     o: options or {}
     @tick: o.tick or 0
@@ -227,8 +229,9 @@ class Mass
   explode: ->
     this.universe.remove this
 
+  solid: true
   overlaps: (other) ->
-    return false if other == this || other.TYPE == 'Explosion'
+    return false unless @solid and other.solid and other != this
     diff: other.position.minus(@position).length()
 
     diff < @radius or diff < other.radius
@@ -265,6 +268,8 @@ class Mass
 Lz.Mass: Mass
 
 class Ship extends Mass
+  serialize: 'Ship'
+
   constructor: (options) ->
     options: or {}
     options.radius: or 16
@@ -312,6 +317,7 @@ class Ship extends Mass
       @rotationalVelocity: 0
 
 class Asteroid extends Mass
+  serialize: 'Asteroid'
   RADIUS_BIG: 40
   RADIUS_SMALL: 20
 
@@ -354,6 +360,8 @@ class Asteroid extends Mass
     ctx.stroke()
 
 class Bullet extends Mass
+  serialize: 'Bullet'
+
   constructor: (options) ->
     @ship: options.ship
     @lifetime: 24 * 3
@@ -383,7 +391,7 @@ class Bullet extends Mass
     ctx.stroke()
 
 class Explosion extends Mass
-  TYPE: 'Explosion'
+  serialize: 'Explosion'
   STRINGS: ['BOOM!', 'POW!', 'KAPOW!', 'BAM!', 'EXPLODE!']
 
   constructor: (options) ->
@@ -397,8 +405,9 @@ class Explosion extends Mass
     @lifetime: 36  # frames
     play('explode')
 
+  solid: false
   overlaps: (other) ->
-    false
+    @solid
 
   step: (dt) ->
     super(dt)
@@ -409,6 +418,8 @@ class Explosion extends Mass
       ctx.fillText(@text, 0, 0)
 
 class Vector
+  serialize: ['Vector', { allowNesting: true }]
+
   # can pass either x, y coords or radians for a unit vector
   constructor: (x, y) ->
     [@x, @y]: if y? then [x, y] else [Math.cos(x), Math.sin(x)]
@@ -520,6 +531,7 @@ _.extend Serializer, {
       Serializer.bless v
 }
 Lz.Serializer: Serializer
+Serializer.blessAll(Lz)
 
 class Sound
   constructor: (preload) ->
