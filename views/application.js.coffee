@@ -133,8 +133,8 @@ class IOQueue
     fn()
     @silent: false
 
-  send: (obj) ->
-    @outbox.push obj unless @silent
+  send: (args...) ->
+    @outbox.push args unless @silent
 
   flush: ->
     return unless @outbox.length and @con?
@@ -152,27 +152,20 @@ class IOQueue
       @inbox: @inbox.concat data
 
 class MassStorage
-  constructor: (universe) ->
-    @universe: universe
+  constructor: ->
     @items: {}
     @length: 0
 
   find: (mass) ->
     @items[mass.id]
 
-  set: (mass) ->
-    @items[mass.id]: mass
-
   add: (mass) ->
     return if @find(mass)?
-    @length++
-    mass.universe: @universe
-    @set mass
+    @update mass
 
   update: (mass) ->
-    return if @add mass
-    existing: @find mass
-    @set mass if existing.tick < mass.tick
+    @length++ unless @find(mass)?
+    @items[mass.id]: mass
 
   remove: (mass) ->
     return unless @find(mass)?
@@ -187,19 +180,27 @@ class Universe
     @zoom: 1
     @io: new IOQueue()
 
+  send: (action, mass) ->
+    mass.ntick: @tick
+    @io.send action, mass
+
   add: (mass) ->
+    mass.universe: this
     @masses.add mass
     status { objects: @masses.length }
-    @io.send { add: mass }
+    @send 'add', mass
 
   update: (mass) ->
-    @masses.update mass
-    @io.send { update: mass }
+    existing: @masses.find(mass)
+    if not existing? or existing.ntick < mass.ntick
+      @masses.update mass
+    else
+      @send 'update', mass
 
   remove: (mass) ->
     @masses.remove mass
     status { objects: @masses.length }
-    @io.send { remove: mass }
+    @send 'remove', mass
 
   start: ->
     @setupCanvas()
@@ -224,14 +225,16 @@ class Universe
 
   network: ->
     @io.silently =>
-      @perform action for action in @io.read()
+      @perform method, data for [method, data] in @io.read()
     @io.flush()
 
-  perform: (action) ->
-    for method, data of action
-      if this[method]?
-        this[method] Serializer.unpack data
-      else status(action)
+  perform: (method, data) ->
+    console.log "Performing $method with:"
+    console.dir data
+    this[method] Serializer.unpack data
+
+  status: (message) ->
+    status { message: message }
 
   render: ->
     @bounds.check @ship
@@ -311,6 +314,7 @@ class Mass extends Observable
     o: options or {}
     @id: Math.uuid()
     @tick: o.tick or 0
+    @ntick: o.ntick or 0 # network tick
     @radius: o.radius or 1
     @position: o.position or new Vector()
     @velocity: o.velocity or new Vector()
