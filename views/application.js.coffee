@@ -476,6 +476,44 @@ class Observable
     (@_observers ||= {})[name] ||= []
 Lz.Observable: Observable
 
+
+class Serializer
+  constructor: (klass) ->
+    @type: klass::serialize
+
+  pack: (instance) ->
+    packed: { serialize: @type }
+    for k, v of instance
+      packed[k]: v
+    packed
+
+_.extend Serializer, {
+  classes: {}
+
+  dummyClass: (klass) ->
+    # a copy of the class with a dummy constructor
+    dummy: (data) -> _.extend this, data
+    dummy.prototype: klass.prototype
+    dummy
+
+  bless: (klass) ->
+    s: new Serializer(klass)
+    Serializer.classes[s.type]: or Serializer.dummyClass klass
+
+    # add references to the prototype
+    klass::serializer: s
+    klass::pack: -> s.pack(this)
+
+  unpack: (data) ->
+    return data unless data.serialize?
+    type: data.serialize
+    delete data.serialize
+    for k, v of data
+      data[k]: Serializer.unpack v
+    new Serializer.classes[type](data)
+}
+Lz.Serializer: Serializer
+
 class Sound
   constructor: (preload) ->
     @base: 'http://lazeroids.com.s3.amazonaws.com/'
