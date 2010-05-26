@@ -3,10 +3,11 @@ Lz: if process? then exports else this.Lz: {}
 class Controller
   constructor: (canvas) ->
     @canvas: canvas
-    @conn: new Connection()
+    #@conn: new Connection()
 
     @setupCanvas()
     @setupKeys()
+    @setupTouch()
     @start()
 
   setupCanvas: ->
@@ -15,7 +16,7 @@ class Controller
   setupKeys: ->
     $(window).keydown (e) =>
       switch e.which
-        when 32 # space bar = shoot
+        when 32  # space bar = shoot
           @ship.shoot()
         when 37  # left
           @ship.rotate(-1)
@@ -35,10 +36,30 @@ class Controller
 
     $(window).keyup (e) =>
       switch e.which
-        when 37  # left
-          @ship.rotate(+1)
-        when 39  # right
-          @ship.rotate(-1)
+        when 37, 39
+          @ship.rotate(0)
+
+  setupTouch: ->
+    x0: y0: x1: y1: null
+    $(document.body).bind 'touchstart', (e) ->
+      { screenX: x0, screenY: y0 }: e.originalEvent.targetTouches[0]
+      [x1, y1]: [x0, y0]
+    $(document.body).bind 'touchmove', (e) =>
+      { screenX: x1, screenY: y1 }: e.originalEvent.targetTouches[0]
+    $(document.body).bind 'touchend', (e) =>
+      [dx, dy]: [x1-x0, y1-y0]
+      [absX, absY]: [Math.abs(dx), Math.abs(dy)]
+      console.log 'dx: ' + dx + ' dy: ' + dy
+      x0: y0: x1: y1: null
+      if absX < 20 and absY < 20
+        @ship.shoot()
+      else if absX > 20 and absX > absY
+        @ship.rotate(dx)
+      else if absY > 20 and absY > absX
+        if dy > 0
+          @ship.brake()
+        else
+          @ship.thrust()
 
   buildShip: (universe) ->
     [w, h]: [@canvas.width, @canvas.height]
@@ -286,6 +307,8 @@ class Ship extends Mass
       @rotationalVelocity += Math.PI / 16
     else if (dir < 0 && @rotationalVelocity >= 0)
       @rotationalVelocity -= Math.PI / 16
+    else if dir == 0
+      @rotationalVelocity: 0
 
 class Asteroid extends Mass
   RADIUS_BIG: 40
