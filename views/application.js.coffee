@@ -3,7 +3,6 @@ Lz: if process? then exports else this.Lz: {}
 class Controller
   constructor: (canvas) ->
     @canvas: canvas
-    #@conn: new Connection()
 
     @setupCanvas()
     @setupKeys()
