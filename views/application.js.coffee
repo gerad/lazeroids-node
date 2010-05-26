@@ -479,12 +479,15 @@ Lz.Observable: Observable
 
 class Serializer
   constructor: (klass) ->
-    @type: klass::serialize
+    [type, options]: _.flatten [klass::serialize]
+    @type: type
+    @allowNesting: options?.allowNesting or false
 
   pack: (instance) ->
     packed: { serialize: @type }
     for k, v of instance
-      packed[k]: v
+      if !v.serializer? or v.serializer.allowNesting
+        packed[k]: if v.serialize? then v.pack() else v
     packed
 
 _.extend Serializer, {
@@ -511,6 +514,10 @@ _.extend Serializer, {
     for k, v of data
       data[k]: Serializer.unpack v
     new Serializer.classes[type](data)
+
+  blessAll: (namespace) ->
+    for k, v of namespace when v::serialize?
+      Serializer.bless v
 }
 Lz.Serializer: Serializer
 
