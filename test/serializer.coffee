@@ -18,6 +18,16 @@ test "methods", (t) ->
   t.ok cc2.milk.healthy(), 'nested methods work too'
   t.done()
 
+test "universe excluded", (t) ->
+  u: new Lz.Universe()
+  m: new Lz.Mass()
+  u.add m
+  data: m.pack()
+
+  t.expect 1
+  t.ok !data.universe?, 'universe is not serialized'
+  t.done()
+
 NameSpace: {}
 
 class Milk

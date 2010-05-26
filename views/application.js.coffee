@@ -493,12 +493,21 @@ class Serializer
     [type, options]: _.flatten [klass::serialize]
     @type: type
     @allowNesting: options?.allowNesting or false
+    @allowed: {}
 
-  pack: (instance) ->
+  shouldSerialize: (name, value) ->
+    @allowed[name] ?= _.isString(value) or _.isNumber(value) or _.isBoolean(value) or value.serialize?
+
+  pack: (instance, nested) ->
+    return if nested and !@allowNesting
     packed: { serialize: @type }
     for k, v of instance
-      if !v.serializer? or v.serializer.allowNesting
-        packed[k]: if v.serialize? then v.pack() else v
+      if @shouldSerialize(k, v)
+        if v.serialize?
+          v: v.pack(true)
+          packed[k]: v if v
+        else
+          packed[k]: v
     packed
 
 _.extend Serializer, {
@@ -514,9 +523,8 @@ _.extend Serializer, {
     s: new Serializer(klass)
     Serializer.classes[s.type]: or Serializer.dummyClass klass
 
-    # add references to the prototype
-    klass::serializer: s
-    klass::pack: -> s.pack(this)
+    # add reference to the prototype
+    klass::pack: (args...) -> s.pack(this, args...)
 
   unpack: (data) ->
     return data unless data.serialize?
