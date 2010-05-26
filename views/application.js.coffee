@@ -449,8 +449,8 @@ class Connection
     @setupObservers()
     @socket.connect()
 
-  send: (message) ->
-    @socket.send message
+  send: (obj) ->
+    @socket.send JSON.stringify obj
 
   receive: (fn) ->
     @observe "message", fn
