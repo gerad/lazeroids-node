@@ -137,6 +137,7 @@ class IOQueue
     @outbox.push obj unless @silent
 
   flush: ->
+    return unless @outbox.length and @con?
     @con.send @outbox
     @outbox: []
 
@@ -167,7 +168,7 @@ class MassStorage
 
 class Universe
   constructor: (options) ->
-    { canvas: @canvas }: options || {}
+    @canvas: options?.canvas
     @masses: new MassStorage()
     @mass
     @tick: 0
@@ -189,8 +190,8 @@ class Universe
     @setupConnection()
     @loop()
 
-    @injectAsteroids 5
-    setInterval (@injectAsteroids <- this, 3), 5000
+    # @injectAsteroids 5
+    # setInterval (@injectAsteroids <- this, 3), 5000
 
     play 'ambient', { loop: true }
 
@@ -212,7 +213,9 @@ class Universe
 
   perform: (action) ->
     for method, data of action
-      this[method] Serializer.unpack data
+      if this[method]?
+        this[method] Serializer.unpack data
+      else status(action)
 
   render: ->
     @bounds.check @ship
@@ -225,7 +228,7 @@ class Universe
       ctx.scale @zoom, @zoom
       ctx.translate @bounds.width*0.75, @bounds.height*0.75
     @bounds.translate ctx
-    mass.render ctx for id, mass in @masses.items
+    mass.render ctx for id, mass of @masses.items
 
     ctx.restore()
 
@@ -247,14 +250,14 @@ class Universe
     return unless @ship?
 
     # ship collisions
-    for id, m in @masses.items
+    for id, m of @masses.items
       if m.overlaps @ship
         @ship.explode()
         break
 
     # bullet collisions
     for b in @ship.bullets
-      for id, m in @masses.items
+      for id, m of @masses.items
         if m.overlaps b
           m.explode()
           b.explode()
@@ -274,7 +277,18 @@ class Universe
     @io.connect()
 Lz.Universe: Universe
 
-class Mass
+class Observable
+  observe: (name, fn) ->
+    @observers(name).push fn
+
+  trigger: (name, args...) ->
+    callback args... for callback in @observers(name)
+
+  observers: (name) ->
+    (@_observers ||= {})[name] ||= []
+Lz.Observable: Observable
+
+class Mass extends Observable
   serialize: 'Mass'
 
   constructor: (options) ->
@@ -338,7 +352,6 @@ class Ship extends Mass
     super options
 
     @bullets: []
-    _.extend(this, new Observable())
 
   explode: ->
     super()
@@ -538,17 +551,6 @@ class Connection
       data: JSON.parse json
       @trigger "message", data
 Lz.Connection: Connection
-
-class Observable
-  observe: (name, fn) ->
-    @observers(name).push fn
-
-  trigger: (name, args...) ->
-    callback args... for callback in @observers(name)
-
-  observers: (name) ->
-    (@_observers ||= {})[name] ||= []
-Lz.Observable: Observable
 
 class Serializer
   constructor: (klass) ->
