@@ -52,4 +52,4 @@ class MockSocket extends Mock
     data: JSON.stringify msg
     @o.trigger 'message', data
 
-run()
+run(__filename)

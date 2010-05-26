@@ -8,4 +8,4 @@ test "observe", (t) ->
   t.expect 1
   t.done()
 
-run()
+run(__filename)

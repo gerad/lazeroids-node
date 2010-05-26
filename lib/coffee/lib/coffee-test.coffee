@@ -32,8 +32,7 @@ afters: []
 exports.after: (fn) ->
   afters.push fn
 
-exports.run: ->
-  name: __filename
+exports.run: (name) ->
   sys.puts bold "\n$name"
   nodeunit.runModule tests, {
     name: name

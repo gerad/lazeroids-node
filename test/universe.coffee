@@ -26,4 +26,4 @@ test "step", (t) ->
   t.same start.plus(velocity), m.position
   t.done()
 
-run()
+run(__filename)
