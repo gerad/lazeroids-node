@@ -12,4 +12,11 @@ require('../lib/coffee/lib/coffee');
 
   exports.Lz = require('../views/application');
   exports.sys = require('sys');
+
+  // mock out console
+  this.console = {
+    log: exports.sys.puts,
+    dir: function(o) { console.log(exports.sys.inspect(o)); }
+  }
+
 }();
