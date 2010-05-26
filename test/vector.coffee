@@ -61,4 +61,4 @@ test "zeroSmall", (t) ->
   t.equals 0, small.y
   t.done()
 
-run()
+run(__filename)
