@@ -152,38 +152,54 @@ class IOQueue
       @inbox: @inbox.concat data
 
 class MassStorage
-  constructor: ->
+  constructor: (universe) ->
+    @universe: universe
     @items: {}
     @length: 0
 
-  add: (mass) ->
-    return if mass.id in @items
+  find: (mass) ->
+    @items[mass.id]
+
+  set: (mass) ->
     @items[mass.id]: mass
+
+  add: (mass) ->
+    return if @find(mass)?
     @length++
+    mass.universe: @universe
+    @set mass
+
+  update: (mass) ->
+    return if @add mass
+    existing: @find mass
+    @set mass if existing.tick < mass.tick
 
   remove: (mass) ->
-    return unless mass.id in @items
-    delete @items[mass.id]
+    return unless @find(mass)?
     @length--
+    delete @items[mass.id]
 
 class Universe
   constructor: (options) ->
     @canvas: options?.canvas
-    @masses: new MassStorage()
-    @mass
+    @masses: new MassStorage(this)
     @tick: 0
     @zoom: 1
     @io: new IOQueue()
 
   add: (mass) ->
     @masses.add mass
-    mass.universe: this
     status { objects: @masses.length }
     @io.send { add: mass }
+
+  update: (mass) ->
+    @masses.update mass
+    @io.send { update: mass }
 
   remove: (mass) ->
     @masses.remove mass
     status { objects: @masses.length }
+    @io.send { remove: mass }
 
   start: ->
     @setupCanvas()
@@ -370,9 +386,11 @@ class Ship extends Mass
 
   thrust: ->
     @acceleration: @acceleration.plus(new Vector(@rotation))
+    @universe.update this
 
   brake: ->
     @acceleration: @acceleration.plus(new Vector(@rotation).times(-1))
+    @universe.update this
 
   shoot: ->
     p: new Vector(@rotation)
@@ -390,6 +408,7 @@ class Ship extends Mass
       @rotationalVelocity -= Math.PI / 16
     else if dir == 0
       @rotationalVelocity: 0
+    @universe.update this
 Lz.Ship: Ship
 
 class Asteroid extends Mass
