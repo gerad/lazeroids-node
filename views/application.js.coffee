@@ -49,7 +49,6 @@ class Controller
     $(document.body).bind 'touchend', (e) =>
       [dx, dy]: [x1-x0, y1-y0]
       [absX, absY]: [Math.abs(dx), Math.abs(dy)]
-      console.log 'dx: ' + dx + ' dy: ' + dy
       x0: y0: x1: y1: null
       if absX < 20 and absY < 20
         @ship.shoot()
@@ -134,9 +133,11 @@ class Universe
   add: (mass) ->
     @masses.push mass
     mass.universe: this
+    status { objects: @masses.length }
 
   remove: (mass) ->
     @masses: _.without @masses, mass
+    status { objects: @masses.length }
 
   start: ->
     @setupCanvas()
@@ -323,7 +324,7 @@ class Asteroid extends Mass
 
     super options
 
-    @lifetime: 24 * 60 * 5
+    @lifetime: 24 * 60
 
     unless (@points: options.points)?
       l: 4 * Math.random() + 8
@@ -355,7 +356,7 @@ class Asteroid extends Mass
 class Bullet extends Mass
   constructor: (options) ->
     @ship: options.ship
-    @lifetime: 24 * 4
+    @lifetime: 24 * 3
     rotation: new Vector(@ship.rotation).times(@ship.radius)
 
     options: or {}
@@ -369,7 +370,7 @@ class Bullet extends Mass
 
   step: (dt) ->
     super dt
-    @explode if (@lifetime -= dt) < 0
+    @explode() if (@lifetime -= dt) < 0
 
   explode: ->
     super()
@@ -401,8 +402,7 @@ class Explosion extends Mass
 
   step: (dt) ->
     super(dt)
-    if @lifetime-- < 0
-      @explode()
+    @explode() if (@lifetime -= dt) < 0
 
   _render: (ctx) ->
     if 'fillText' in ctx
@@ -495,3 +495,5 @@ class Sound
       s.currentTime: 0
     s
 Lz.play: play: Sound.prototype.play <- new Sound(['explode', 'flip', 'shoot', 'warp', 'zoom_in', 'zoom_out'])
+
+Lz.status: status: (msg) -> $('#status .' + k).text v for k, v of msg
