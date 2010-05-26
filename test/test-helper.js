@@ -4,6 +4,7 @@ require('../lib/coffee/lib/coffee');
   helpers.extend(exports, require('../lib/coffee/lib/coffee-test'));
 
   require('../public/javascripts/underscore');
+  require('../public/javascripts/Math.uuid');
 
   // mock out audio for headless testing
   this.Audio = function() {};

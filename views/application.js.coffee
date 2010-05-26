@@ -149,24 +149,39 @@ class IOQueue
     @con: new Connection()
     @con.receive (data) =>
       @inbox: @inbox.concat data
-    @flush()
+
+class MassStorage
+  constructor: ->
+    @items: {}
+    @length: 0
+
+  add: (mass) ->
+    return if mass.id in @items
+    @items[mass.id]: mass
+    @length++
+
+  remove: (mass) ->
+    return unless mass.id in @items
+    delete @items[mass.id]
+    @length--
 
 class Universe
   constructor: (options) ->
     { canvas: @canvas }: options || {}
-    @masses: []
+    @masses: new MassStorage()
+    @mass
     @tick: 0
     @zoom: 1
     @io: new IOQueue()
 
   add: (mass) ->
-    @masses.push mass
+    @masses.add mass
     mass.universe: this
     status { objects: @masses.length }
     @io.send { add: mass }
 
   remove: (mass) ->
-    @masses: _.without @masses, mass
+    @masses.remove mass
     status { objects: @masses.length }
 
   start: ->
@@ -187,7 +202,7 @@ class Universe
 
   step: (dt) ->
     @tick += dt
-    mass.step dt for mass in @masses
+    mass.step dt for id, mass of @masses.items
     @checkCollisions()
 
   network: ->
@@ -210,7 +225,7 @@ class Universe
       ctx.scale @zoom, @zoom
       ctx.translate @bounds.width*0.75, @bounds.height*0.75
     @bounds.translate ctx
-    mass.render ctx for mass in @masses
+    mass.render ctx for id, mass in @masses.items
 
     ctx.restore()
 
@@ -232,14 +247,14 @@ class Universe
     return unless @ship?
 
     # ship collisions
-    for m in @masses
+    for id, m in @masses.items
       if m.overlaps @ship
         @ship.explode()
         break
 
     # bullet collisions
     for b in @ship.bullets
-      for m in @masses
+      for id, m in @masses.items
         if m.overlaps b
           m.explode()
           b.explode()
@@ -264,6 +279,7 @@ class Mass
 
   constructor: (options) ->
     o: options or {}
+    @id: Math.uuid()
     @tick: o.tick or 0
     @radius: o.radius or 1
     @position: o.position or new Vector()

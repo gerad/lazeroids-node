@@ -5,6 +5,8 @@ before ->
   sockets: []
   universes: []
   createUniverse() for i in [0...2]
+  for i in [0...2]
+    u.network() for u in universes
 
 test "setup", (t) ->
   t.expect 2
@@ -15,9 +17,10 @@ test "setup", (t) ->
 test "sync", (t) ->
   t.expect 2
   [u0, u1]: universes
-  u.network() for u in universes
+
   t.equals 2, u0.masses.length, 'first universe gets both masses'
   t.equals 2, u1.masses.length, 'second universe gets both masses'
+
   t.done()
 
 createUniverse: ->
