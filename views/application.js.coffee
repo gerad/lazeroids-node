@@ -496,4 +496,4 @@ class Sound
     s
 Lz.play: play: Sound.prototype.play <- new Sound(['explode', 'flip', 'shoot', 'warp', 'zoom_in', 'zoom_out'])
 
-Lz.status: status: (msg) -> $('#status .' + k).text v for k, v of msg
+Lz.status: status: (msg) -> $('#status .' + k).text v for k, v of msg if $?
