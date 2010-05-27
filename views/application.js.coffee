@@ -366,7 +366,7 @@ class Mass extends Observable
 Lz.Mass: Mass
 
 class Ship extends Mass
-  serialize: 'Ship'
+  serialize: ['Ship', { exclude: 'bullets' }]
 
   constructor: (options) ->
     options: or {}
@@ -586,14 +586,15 @@ class Serializer
     @type: type
     @allowNesting: options?.allowNesting or false
     @allowed: {}
+    for i in _.compact _.flatten [options?.exclude]
+      @allowed[i]: false
 
   shouldSerialize: (name, value) ->
-    serializable: _.isString(value) or
+    @allowed[name] ?= _.isString(value) or
       _.isNumber(value) or
       _.isBoolean(value) or
       _.isArray(value) or
       value.serialize?
-    @allowed[name] ?= serializable
 
   pack: (instance) ->
     return if Serializer.nesting and !@allowNesting

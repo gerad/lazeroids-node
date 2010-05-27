@@ -47,6 +47,18 @@ test "bullet does not include ship", (t) ->
   t.ok !b.pack().ship?, 'ship is not serialized'
   t.done()
 
+test "ship does not include bullets", (t) ->
+  u: new Lz.Universe()
+  s: new Lz.Ship()
+  u.add s
+  s.shoot()
+  s2: Lz.Serializer.unpack s.pack()
+
+  t.expect 2
+  t.equals s.bullets.length, 1
+  t.ok !s2.bullets?
+  t.done()
+
 test "mass in object", (t) ->
   m: new Lz.Mass()
   j: JSON.parse JSON.stringify { add: m }
