@@ -55,6 +55,12 @@ test "mass in object", (t) ->
   t.ok j.add, 'data still added'
   t.done()
 
+test "asteroid", (t) ->
+  original: new Lz.Asteroid()
+  unpacked: Lz.Serializer.unpack original.toJSON()
+  t.same original, unpacked
+  t.done()
+
 NameSpace: {}
 
 class Milk

@@ -426,7 +426,7 @@ class Asteroid extends Mass
     options: or {}
     options.radius: or @RADIUS_BIG
     options.velocity: or new Vector(6 * Math.random() - 3, 6 * Math.random() - 3)
-    options.position: options.position.plus options.velocity.times(10)
+    options.position: (options.position or new Vector()).plus options.velocity.times(10)
     options.rotationalVelocity: or Math.random() * 0.1 - 0.05
 
     super options
@@ -632,12 +632,17 @@ _.extend Serializer, {
       data
 
   unpack: (data) ->
-    return data unless data.serialize?
-    type: data.serialize
-    delete data.serialize
-    for k, v of data
-      data[k]: Serializer.unpack v
-    new Serializer.classes[type](data)
+    if data.serialize?
+      type: data.serialize
+      delete data.serialize
+      for k, v of data
+        data[k]: Serializer.unpack v
+      new Serializer.classes[type](data)
+    else
+      if _.isArray(data)
+        Serializer.unpack i for i in data
+      else
+        data
 
   blessAll: (namespace) ->
     for k, v of namespace when v::serialize?
