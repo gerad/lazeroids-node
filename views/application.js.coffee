@@ -600,7 +600,8 @@ class Serializer
     packed: { serialize: @type }
     for k, v of instance
       if @shouldSerialize(k, v)
-        packed[k]: Serializer.pack v
+        v: Serializer.pack v
+        packed[k]: v if v?
     packed
 
 _.extend Serializer, {

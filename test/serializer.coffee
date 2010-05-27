@@ -61,6 +61,14 @@ test "asteroid", (t) ->
   t.same original, unpacked
   t.done()
 
+test "bullet", (t) ->
+  s: new Lz.Ship()
+  original: new Lz.Bullet({ ship: s })
+  unpacked: Lz.Serializer.unpack original.toJSON()
+  delete original.ship
+  t.same original, unpacked
+  t.done()
+
 NameSpace: {}
 
 class Milk
