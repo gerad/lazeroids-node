@@ -458,6 +458,7 @@ class Asteroid extends Mass
     ctx.lineTo p[i].x, p[i].y for i in [1 ... p.length]
     ctx.closePath()
     ctx.stroke()
+Lz.Asteroid: Asteroid
 
 class Bullet extends Mass
   serialize: 'Bullet'
@@ -489,6 +490,7 @@ class Bullet extends Mass
     ctx.arc 0, 0, @radius, 0, Math.PI * 2, true
     ctx.closePath()
     ctx.stroke()
+Lz.Bullet: Bullet
 
 class Explosion extends Mass
   serialize: 'Explosion'
@@ -516,6 +518,7 @@ class Explosion extends Mass
   _render: (ctx) ->
     if 'fillText' in ctx
       ctx.fillText(@text, 0, 0)
+Lz.Explosion: Explosion
 
 class Vector
   serialize: ['Vector', { allowNesting: true }]
