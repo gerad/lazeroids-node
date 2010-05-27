@@ -588,20 +588,19 @@ class Serializer
     @allowed: {}
 
   shouldSerialize: (name, value) ->
-    @allowed[name] ?= _.isString(value) or _.isNumber(value) or _.isBoolean(value) or value.serialize?
+    serializable: _.isString(value) or
+      _.isNumber(value) or
+      _.isBoolean(value) or
+      _.isArray(value) or
+      value.serialize?
+    @allowed[name] ?= serializable
 
   pack: (instance) ->
     return if Serializer.nesting and !@allowNesting
     packed: { serialize: @type }
     for k, v of instance
       if @shouldSerialize(k, v)
-        if v.serialize?
-          Serializer.nesting: true
-          v: v.pack()
-          Serializer.nesting: false
-          packed[k]: v if v
-        else
-          packed[k]: v
+        packed[k]: Serializer.pack v
     packed
 
 _.extend Serializer, {
@@ -620,6 +619,17 @@ _.extend Serializer, {
     # add reference to the prototype
     klass::pack: (args...) -> s.pack(this, args...)
     klass::toJSON: klass::pack
+
+  pack: (data) ->
+    if data.serialize?
+      Serializer.nesting: true
+      ret: data.pack()
+      Serializer.nesting: false
+      ret
+    else if _.isArray(data)
+      Serializer.pack i for i in data
+    else
+      data
 
   unpack: (data) ->
     return data unless data.serialize?

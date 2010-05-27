@@ -18,6 +18,14 @@ test "methods", (t) ->
   t.ok cc2.milk.healthy(), 'nested methods work too'
   t.done()
 
+test "array", (t) ->
+  original = [1,2,3,[4,5,6]]
+  unpacked = Lz.Serializer.unpack Lz.Serializer.pack original
+
+  t.expect 1
+  t.same original, unpacked
+  t.done()
+
 test "universe excluded", (t) ->
   u: new Lz.Universe()
   m: new Lz.Mass()
