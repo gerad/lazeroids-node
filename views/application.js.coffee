@@ -484,7 +484,7 @@ class Bullet extends Mass
 
   explode: ->
     super()
-    @ship.removeBullet this
+    @ship.removeBullet this if @ship?
 
   _render: (ctx) ->
     ctx.beginPath()
