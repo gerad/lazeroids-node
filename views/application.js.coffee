@@ -208,8 +208,8 @@ class Universe
     @setupConnection()
     @loop()
 
-    # @injectAsteroids 5
-    # setInterval (@injectAsteroids <- this, 3), 5000
+    @injectAsteroids 5
+    setInterval (@injectAsteroids <- this, 3), 5000
 
     play 'ambient', { loop: true }
 
