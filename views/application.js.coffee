@@ -79,49 +79,6 @@ class Controller
     @universe.start()
 Lz.Controller: Controller
 
-class Bounds
-  BUFFER: 40
-
-  constructor: (canvas) ->
-    [@l, @t]: [0, 0]
-    [@r, @b]: [@width, @height]: [canvas.width, canvas.height]
-    @dx: @dy: 0
-
-  check: (ship) ->
-    p: ship.position
-    flip: false
-
-    if p.x < @l+@BUFFER
-      @dx: -@width * 0.75; flip: true
-    else if p.x > @r-@BUFFER
-      @dx: +@width * 0.75; flip: true
-
-    if p.y < @t+@BUFFER
-      @dy: -@height * 0.75; flip: true
-    else if p.y > @b-@BUFFER
-      @dy: +@height * 0.75; flip: true
-
-    if flip
-      play 'flip'
-
-    if @dx != 0
-      dx: parseInt @dx / 8
-      @l += dx; @r += dx
-      @dx -= dx
-      @dx: 0 if Math.abs(@dx) < 3
-
-    if @dy != 0
-      dy: parseInt @dy / 8
-      @t += dy; @b += dy
-      @dy -= dy
-      @dy: 0 if Math.abs(@dy) < 3
-
-  translate: (ctx) ->
-    ctx.translate(-@l, -@t)
-
-  randomPosition: ->
-    new Vector @width * Math.random() + @l, @height * Math.random() + @t
-
 class IOQueue
   constructor: ->
     @outbox: []
@@ -308,6 +265,49 @@ class Observable
   observers: (name) ->
     (@_observers ||= {})[name] ||= []
 Lz.Observable: Observable
+
+class Bounds
+  BUFFER: 40
+
+  constructor: (canvas) ->
+    [@l, @t]: [0, 0]
+    [@r, @b]: [@width, @height]: [canvas.width, canvas.height]
+    @dx: @dy: 0
+
+  check: (ship) ->
+    p: ship.position
+    flip: false
+
+    if p.x < @l+@BUFFER
+      @dx: -@width * 0.75; flip: true
+    else if p.x > @r-@BUFFER
+      @dx: +@width * 0.75; flip: true
+
+    if p.y < @t+@BUFFER
+      @dy: -@height * 0.75; flip: true
+    else if p.y > @b-@BUFFER
+      @dy: +@height * 0.75; flip: true
+
+    if flip
+      play 'flip'
+
+    if @dx != 0
+      dx: parseInt @dx / 8
+      @l += dx; @r += dx
+      @dx -= dx
+      @dx: 0 if Math.abs(@dx) < 3
+
+    if @dy != 0
+      dy: parseInt @dy / 8
+      @t += dy; @b += dy
+      @dy -= dy
+      @dy: 0 if Math.abs(@dy) < 3
+
+  translate: (ctx) ->
+    ctx.translate(-@l, -@t)
+
+  randomPosition: ->
+    new Vector @width * Math.random() + @l, @height * Math.random() + @t
 
 class Mass extends Observable
   serialize: 'Mass'
