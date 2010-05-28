@@ -16,19 +16,23 @@ class Controller
   setupKeys: ->
     $(window).keydown (e) =>
       switch e.which
-        when 32  # space bar = shoot
+        when 32       # space bar = shoot
           @ship.shoot()
-        when 37  # left
+        when 37       # left
           @ship.rotate(-1)
-        when 39  # right
+        when 39       # right
           @ship.rotate(+1)
-        when 38  # up
+        when 38       # up
           @ship.thrust()
-        when 40  # down
+        when 40       # down
           @ship.brake()
-        when 78  # n = toggle names
+        when 87       # w = warp
+          @ship.warp()
+        when 72, 191  # h, ? = help
+          $('#help').animate { opacity: 'toggle' }
+        when 78       # n = toggle names
           @universe.renderNames: !@universe.renderNames
-        when 90  # z = zoom
+        when 90       # z = zoom
           if @universe.zoom == 1
             @universe.zoom: 0.4
             play 'zoom_out'
@@ -255,7 +259,7 @@ class Universe
     @ctx.lineJoin: 'round'
     @ctx.strokeStyle: 'rgb(255,255,255)'
     @ctx.fillStyle: 'rgb(255,255,255)'
-    @ctx.font: '8pt "Droid Sans Mono", Monaco, monospace'
+    @ctx.font: '8pt Monaco, monospace'
     @ctx.textAlign: 'center'
 
   setupConnection: ->
@@ -415,6 +419,10 @@ class Ship extends Mass
     b: new Bullet { ship: this }
     @universe.add b
     @bullets.push b
+
+  warp: ->
+    @position: @universe.bounds.randomPosition()
+    play 'warp'
 
   removeBullet: (b) ->
     @bullets: _.without @bullets, b
