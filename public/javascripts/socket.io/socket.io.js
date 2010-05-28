@@ -168,7 +168,7 @@ io.util.Events = (function(){
 		fireEvent: function(type, args){
 			args = [].concat(args);
 			array.each(eventsOf(this, type), function(fn){
-				fn.apply(this, args);
+				fn.call(this, args);
 			}, this);
 			return this;
 		},
