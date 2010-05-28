@@ -3,14 +3,15 @@ Lz: if process? then exports else this.Lz: {}
 class Controller
   constructor: (canvas) ->
     @canvas: canvas
-
     @setupCanvas()
-    @setupKeys()
-    @setupTouch()
     @start()
 
   setupCanvas: ->
-    [@canvas.width, @canvas.height]: [$(window).width()-5, $(window).height()-5]
+    [@canvas.width, @canvas.height]: [$(window).width(), $(window).height()]
+
+  setupInput: ->
+    @setupKeys()
+    @setupTouch()
 
   setupKeys: ->
     $(window).keydown (e) =>
@@ -25,6 +26,8 @@ class Controller
           @ship.thrust()
         when 40  # down
           @ship.brake()
+        when 78  # n = toggle names
+          @universe.renderNames: !@universe.renderNames
         when 90  # z = zoom
           if @universe.zoom == 1
             @universe.zoom: 0.4
@@ -58,6 +61,9 @@ class Controller
           @ship.brake()
         else
           @ship.thrust()
+
+  setName: (name) ->
+    @ship.setName name
 
   buildShip: (universe) ->
     [w, h]: [@canvas.width, @canvas.height]
@@ -137,6 +143,7 @@ class Universe
     @masses: new MassStorage(this)
     @tick: 0
     @zoom: 1
+    @renderNames: true
     @io: new IOQueue()
 
   send: (action, mass) ->
@@ -248,7 +255,7 @@ class Universe
     @ctx.lineJoin: 'round'
     @ctx.strokeStyle: 'rgb(255,255,255)'
     @ctx.fillStyle: 'rgb(255,255,255)'
-    @ctx.font: '9pt Monaco, Monospace'
+    @ctx.font: '8pt "Droid Sans Mono", Monaco, monospace'
     @ctx.textAlign: 'center'
 
   setupConnection: ->
@@ -349,6 +356,8 @@ class Mass extends Observable
     ctx.save()
 
     ctx.translate @position.x, @position.y
+    if 'fillText' in ctx and @universe.renderNames and @name?
+      ctx.fillText @name, 0, 2 * @radius
     ctx.rotate @rotation
     @_render ctx
 
@@ -374,6 +383,9 @@ class Ship extends Mass
     super options
 
     @bullets: []
+
+  setName: (name) ->
+    @name: name
 
   explode: ->
     super()

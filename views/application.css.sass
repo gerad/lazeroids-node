@@ -1,12 +1,46 @@
+!bg_color = rgba(255, 255, 255, 0.1)
+!border = 1px solid rgba(255, 255, 255, 0.11)
+
+body, input, button
+  :text-align center
+  :font large 'Droid Sans Mono', Inconsolata, Monaco, monospace
+
 body
   :background-color black
   :color white
   :padding 0
   :margin 0
-  :text-align center
-  :font x-small Monaco, monospace
+  :overflow hidden
+
+input, button
+  :-webkit-border-radius 3px
+  :-moz-border-radius 3px
+  :border !border
+  :padding 3px 6px
+  //:background-color rgba(255, 255, 255, 0.4)
+
+input[type=submit], button
+  :text-shadow 0px 1px 0px rgba(255, 255, 255, 0.5)
+
 #status
   :position fixed
   :width 100%
   :padding 2px
-  :background-color rgba(0, 0, 0, 0.5)
+  :background-color !bg_color
+  :border-bottom !border
+  :font-size x-small
+
+#splash
+  :position absolute
+  :width 100%
+  :top 40px
+  .box
+    :width 80%
+    :margin 0px auto
+    :padding 1em
+    :background-color !bg_color
+    :border !border
+    :-webkit-border-radius 3px
+    :-moz-border-radius 3px
+  h1
+    :font-size xxx-large
