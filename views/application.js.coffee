@@ -390,6 +390,7 @@ class Ship extends Mass
 
   setName: (name) ->
     @name: name
+    @universe.update this
 
   explode: ->
     super()
