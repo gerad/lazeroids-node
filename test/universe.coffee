@@ -17,6 +17,19 @@ test "add", (t) ->
   t.equals 1, u.masses.length, 'universe has 1 mass'
   t.done()
 
+test "network add does not update ntick", (t) ->
+  m1: new Lz.Mass()
+
+  # TODO use mocks instead of updating private vars
+  u.io.inbox.push ['add', m1.pack()]
+  u.tick: 100
+  u.network()
+
+  m2: u.masses.find m1
+
+  t.same m1.ntick, m2.ntick
+  t.done()
+
 test "step", (t) ->
   t.expect 1
   start: m.position.clone()

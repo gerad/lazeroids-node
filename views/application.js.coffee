@@ -89,15 +89,9 @@ class IOQueue
   constructor: ->
     @outbox: []
     @inbox: []
-    @silent: false
-
-  silently: (fn) ->
-    @silent: true
-    fn()
-    @silent: false
 
   send: (args...) ->
-    @outbox.push args unless @silent
+    @outbox.push args
 
   flush: ->
     return unless @outbox.length and @con?
@@ -145,10 +139,17 @@ class Universe
     @zoom: 1
     @renderNames: true
     @io: new IOQueue()
+    @silent: false
 
   send: (action, mass) ->
-    mass.ntick: @tick
-    @io.send action, mass
+    unless @silent
+      mass.ntick: @tick
+      @io.send action, mass
+
+  silently: (fn) ->
+    @silent: true
+    fn()
+    @silent: false
 
   add: (mass) ->
     @masses.add mass
@@ -159,8 +160,7 @@ class Universe
     existing: @masses.find(mass)
     if not existing? or existing.ntick < mass.ntick
       @masses.update mass
-    else
-      @send 'update', mass
+    @send 'update', mass
 
   remove: (mass) ->
     @masses.remove mass
@@ -190,7 +190,7 @@ class Universe
     @checkCollisions()
 
   network: ->
-    @io.silently =>
+    @silently =>
       @perform method, data for [method, data] in @io.read()
     @io.flush()
 
