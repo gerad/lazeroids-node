@@ -9,7 +9,7 @@ lib/coffee/lib/coffee-script:
 lib/socket.io: 
   squashed: true
   branch: master
-  url: http://github.com/LearnBoost/Socket.IO-node.git
+  url: git://github.com/visnup/Socket.IO-node.git
   type: git
   revision: fbce6379a5065b5c5b95a3eaeabf57a555557548
   remote: braid/lib/socket.io
