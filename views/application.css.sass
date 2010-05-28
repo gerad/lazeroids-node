@@ -3,7 +3,7 @@
 
 body, input, button
   :text-align center
-  :font large 'Droid Sans Mono', Inconsolata, Monaco, monospace
+  :font large Monaco, monospace
 
 body
   :background-color black
@@ -22,6 +22,9 @@ input, button
 input[type=submit], button
   :text-shadow 0px 1px 0px rgba(255, 255, 255, 0.5)
 
+a
+  :color gray
+
 #status
   :position fixed
   :width 100%
@@ -30,11 +33,12 @@ input[type=submit], button
   :border-bottom !border
   :font-size x-small
 
-#splash
+.dialogs
   :position absolute
   :width 100%
-  :top 40px
-  .box
+  :top 2em
+  .dialog
+    :display none
     :width 80%
     :margin 0px auto
     :padding 1em
@@ -44,3 +48,12 @@ input[type=submit], button
     :-moz-border-radius 3px
   h1
     :font-size xxx-large
+  p.original
+    :font-size medium
+  a.fortnight
+    :font-family "im fell great primer"
+  table
+    :margin 0px auto
+
+#splash form
+  :margin-bottom 3em

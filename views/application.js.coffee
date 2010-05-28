@@ -26,6 +26,8 @@ class Controller
           @ship.thrust()
         when 40  # down
           @ship.brake()
+        when 72, 191  # h, ? = help
+          $('#help').animate { opacity: 'toggle' }
         when 78  # n = toggle names
           @universe.renderNames: !@universe.renderNames
         when 90  # z = zoom
@@ -255,7 +257,7 @@ class Universe
     @ctx.lineJoin: 'round'
     @ctx.strokeStyle: 'rgb(255,255,255)'
     @ctx.fillStyle: 'rgb(255,255,255)'
-    @ctx.font: '8pt "Droid Sans Mono", Monaco, monospace'
+    @ctx.font: '8pt Monaco, monospace'
     @ctx.textAlign: 'center'
 
   setupConnection: ->
