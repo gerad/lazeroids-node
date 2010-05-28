@@ -17,9 +17,10 @@
 
 :coffeescript
   $ ->
+    $('input[name=name]').val(localStorage.name).select() if localStorage.name
     c: new Lz.Controller $('canvas').get(0)
     $('form').submit ->
-      c.setupInput()
-      c.setName $('input[name=name]', this).val()
+      c.setName localStorage.name: $('input[name=name]', this).val()
       $('#splash').fadeOut()
+      c.setupInput()
       false
