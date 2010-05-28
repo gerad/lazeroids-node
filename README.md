@@ -6,7 +6,15 @@ updated by [fortnight labs] to even newer tech:
   * [jquery](http://jquery.com) / [underscore](http://documentcloud.github.com/underscore/)
   * [coffeescript](http://jashkenas.github.com/coffee-script/)
   * [websockets](http://www.whatwg.org/specs/web-apps/current-work/complete/network.html#network) (via [socket.io](http://www.learnboost.com/socket-io-sockets-for-the-rest-of-us/))
-  * [html5 audio](http://www.w3.org/TR/html5/video.html#audio)
+  * html5
+    * [audio](http://www.w3.org/TR/html5/video.html#audio)
+    * form elements placeholder
+    * rounded corners
+  * css3
+    * rgba
+    * webfonts
+  * canvas
+  * touch events
 
 [734m]:http://r09.railsrumble.com/teams/734m
 [rails rumble 09]:http://r09.railsrumble.com
