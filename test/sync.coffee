@@ -33,12 +33,18 @@ createUniverse: ->
 class EchoSocket
   constructor: ->
     @o: new Lz.Observable()
-    @addEvent: @o.observe <- @o
     @trigger: @o.trigger <- @o
+
   connect: ->
     sockets.push this
+
   send: (msg) ->
-    s.trigger('message', msg) for s in sockets
+    s.trigger('message', msg.pack()) for s in sockets
+
+  addEvent: (name, fn) ->
+    @o.observe 'message', (msg) ->
+      fn(msg.unpack())
+
 this.io: { Socket: EchoSocket }
 
 run(__filename)
