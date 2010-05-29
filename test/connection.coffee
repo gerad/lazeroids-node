@@ -24,7 +24,7 @@ test "send", (t) ->
 
   t.expect 1
   mockSocket.expect 'send', (msg) ->
-    t.equals msg, JSON.stringify(message)
+    t.equals msg, message
   c.send(message)
 
   t.done()
@@ -42,14 +42,14 @@ test "receive", (t) ->
 
 class MockSocket extends Mock
   constructor: ->
-    @o: new Lz.Observable()
     super()
-
+    @o: new Lz.Observable()
     @expect 'connect'
-    @expect 'addEvent', (@o.observe <- @o)
 
-  sendMessage: (msg) ->
-    data: JSON.stringify msg
+  addEvent: (name, fn) ->
+    @o.observe 'message', fn
+
+  sendMessage: (data) ->
     @o.trigger 'message', data
 
 run(__filename)

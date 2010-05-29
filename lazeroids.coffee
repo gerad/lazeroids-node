@@ -1,5 +1,3 @@
-json: JSON.stringify
-
 get '/', ->
   @render 'index.html.haml'
 
@@ -23,9 +21,9 @@ comet: sio.listen server, {
   resource: 'comet'
   transports: 'websocket htmlfile xhr-multipart xhr-polling'.split(' ')
   onClientConnect: (client) ->
-    comet.broadcast json [['status', "${client.sessionId} connected"]]
+    comet.broadcast [['status', "${client.sessionId} connected"]]
   onClientDisconnect: (client) ->
-    client.broadcast json [['status', "${client.sessionId} disconnected"]]
+    client.broadcast [['status', "${client.sessionId} disconnected"]]
   onClientMessage: (message, client) ->
     comet.broadcast message
 }

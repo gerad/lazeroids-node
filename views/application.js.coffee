@@ -582,28 +582,19 @@ class Connection
       resource: 'comet'
       port: 8000
     }
-    @setupObservers()
     @socket.connect()
 
   send: (obj) ->
-    @socket.send JSON.stringify obj
+    @socket.send obj
 
   receive: (fn) ->
-    @observe "message", fn
+    @socket.addEvent 'message', fn
 
-  setupObservers: () ->
-    o: new Observable()
-    @trigger: o.trigger <- o
-    @observe: o.observe <- o
-
-    @socket.addEvent 'message', (json) =>
-      data: JSON.parse json
-      @trigger "message", data
 Lz.Connection: Connection
 
 class Serializer
   constructor: (klass) ->
-    [type, options]: _.flatten [klass::serialize]
+    [type, options]: Serializer.parseOptions klass.prototype
     @type: type
     @allowNesting: options?.allowNesting or false
     @allowed: {}
@@ -654,9 +645,12 @@ _.extend Serializer, {
     else
       data
 
+  parseOptions: (obj) ->
+    _.flatten [ obj.serialize ]
+
   unpack: (data) ->
     if data.serialize?
-      type: data.serialize
+      [type, options]: Serializer.parseOptions data
       delete data.serialize
       for k, v of data
         data[k]: Serializer.unpack v
