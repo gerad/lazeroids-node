@@ -46,10 +46,10 @@ class MockSocket extends Mock
     @o: new Lz.Observable()
     @expect 'connect'
 
-  sendMessage: (data) ->
-    @o.trigger 'message', data
-
   addEvent: (name, fn) ->
     @o.observe 'message', fn
+
+  sendMessage: (data) ->
+    @o.trigger 'message', data
 
 run(__filename)
