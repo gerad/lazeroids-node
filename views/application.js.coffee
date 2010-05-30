@@ -581,7 +581,7 @@ class Vector
     @y: 0 if Math.abs(@y) < 0.01
 Lz.Vector: Vector
 
-class Connection
+class Connection extends Observable
   constructor: ->
     @socket: new io.Socket null, {
       rememberTransport: false
@@ -589,25 +589,21 @@ class Connection
       port: 8000
     }
     @socket.connect()
-    @o: new Observable()
     @observingSocket: {}
 
   send: (obj) ->
     @socket.send Serializer.pack obj
 
   observe: (msg, fn) ->
-    @o.observe msg, fn
+    super msg, fn
     @observeSocket msg
-
-  trigger: (msg, data) ->
-    @o.trigger msg, Serializer.unpack data
 
   observeSocket: (eventName) ->
     return if @observingSocket[eventName]
     @observingSocket[eventName]: true
 
     @socket.addEvent eventName, (data) =>
-      @trigger eventName, data
+      @trigger eventName, Serializer.unpack data
 
 Lz.Connection: Connection
 
