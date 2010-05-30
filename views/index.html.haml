@@ -58,8 +58,8 @@
     c = new Lz.Controller($('canvas').get(0));
     $('form').submit(function() {
       c.setName(localStorage.name = $('input[name=name]', this).val());
-      $('#splash').fadeOut();
       c.setupInput();
+      $('#splash').fadeOut();
       return false;
     });
     $('a.help').click(function() {

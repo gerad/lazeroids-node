@@ -15,19 +15,20 @@ class Controller
 
   setupKeys: ->
     $(window).keydown (e) =>
+      ship: @universe.ship
       switch e.which
         when 32       # space bar = shoot
-          @ship.shoot()
+          ship.shoot()
         when 37       # left
-          @ship.rotate(-1)
+          ship.rotate(-1)
         when 39       # right
-          @ship.rotate(+1)
+          ship.rotate(+1)
         when 38       # up
-          @ship.thrust()
+          ship.thrust()
         when 40       # down
-          @ship.brake()
+          ship.brake()
         when 87       # w = warp
-          @ship.warp()
+          ship.warp()
         when 72, 191  # h, ? = help
           $('#help').animate { opacity: 'toggle' }
         when 78       # n = toggle names
@@ -43,7 +44,7 @@ class Controller
     $(window).keyup (e) =>
       switch e.which
         when 37, 39
-          @ship.rotate(0)
+          @universe.ship.rotate(0)
 
   setupTouch: ->
     x0: y0: x1: y1: null
@@ -56,19 +57,19 @@ class Controller
       [dx, dy]: [x1-x0, y1-y0]
       [absX, absY]: [Math.abs(dx), Math.abs(dy)]
       x0: y0: x1: y1: null
+      ship: @universe.ship
       if absX < 20 and absY < 20
-        @ship.shoot()
+        ship.shoot()
       else if absX > 20 and absX > absY
-        @ship.rotate(dx)
+        ship.rotate(dx)
       else if absY > 20 and absY > absX
         if dy > 0
-          @ship.brake()
+          ship.brake()
         else
-          @ship.thrust()
+          ship.thrust()
 
   setName: (name) ->
-    @ship.setName name
-    @universe.startShip()
+    @universe.buildShip(name)
 
   start: ->
     @universe: new Universe { canvas: @canvas }
@@ -163,9 +164,8 @@ class Universe
     @setupConnection()
     @loop()
 
-    if document?.domain == 'lazeroids.com'
-      @injectAsteroids 5
-      setInterval (@injectAsteroids <- this, 3), 5000
+    @injectAsteroids 5
+    setInterval (@injectAsteroids <- this, 3), 5000
 
     play 'ambient', { loop: true }
 
@@ -178,7 +178,7 @@ class Universe
   step: (dt) ->
     @tick += dt
     mass.step dt for id, mass of @masses.items
-    @checkCollisions()
+    @checkCollisions() if @ship?
 
   network: ->
     @silently =>
@@ -194,7 +194,7 @@ class Universe
     status { message: message }
 
   render: ->
-    @bounds.check @ship
+    @bounds.check @ship if @ship?
 
     ctx: @ctx
     ctx.clearRect 0, 0, @canvas.width, @canvas.height
@@ -226,12 +226,11 @@ class Universe
     [w, h]: [@canvas.width, @canvas.height]
     [x, y]: [Math.random() * w/2 + w/4, Math.random() * h/2 + h/4]
 
-    name: @ship?.name
     @ship: new Ship {
       position: new Vector x, y
       rotation: -Math.PI / 2
+      name: @ship.name
     }
-    @ship.setName name
     @ship.observe 'explode', =>
       @buildShip()
       @startShip()
@@ -241,8 +240,6 @@ class Universe
     @add @ship
 
   checkCollisions: ->
-    return unless @ship?
-
     # ship collisions
     for id, m of @masses.items
       if m.overlaps @ship
@@ -394,14 +391,12 @@ class Ship extends Mass
     options.radius: or 16
     super options
 
+    @name: options.name
     @bullets: []
 
   step: (dt) ->
     @lifetime += dt if this is @universe.ship
     super dt
-
-  setName: (name) ->
-    @name: name
 
   explode: ->
     super()
@@ -434,6 +429,8 @@ class Ship extends Mass
 
   warp: ->
     @position: @universe.bounds.randomPosition()
+    @velocity: new Vector()
+    @acceleration: new Vector()
     play 'warp'
 
   removeBullet: (b) ->
