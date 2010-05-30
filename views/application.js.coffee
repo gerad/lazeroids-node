@@ -423,6 +423,8 @@ class Ship extends Mass
 
   warp: ->
     @position: @universe.bounds.randomPosition()
+    @velocity: new Vector()
+    @acceleration: new Vector()
     play 'warp'
 
   removeBullet: (b) ->
