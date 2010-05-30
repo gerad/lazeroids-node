@@ -618,6 +618,7 @@ class Serializer
     @copy.prototype: @klass.prototype # same prototype
 
   shouldSerialize: (name, value) ->
+    return false unless value?
     @allowed[name] ?= _.isString(value) or
       _.isNumber(value) or
       _.isBoolean(value) or
@@ -626,9 +627,8 @@ class Serializer
 
   pack: (instance) ->
     packed: { serializer: @name }
-    for k, v of instance
-      if v? and @shouldSerialize(k, v)
-        packed[k]: Serializer.pack v
+    for k, v of instance when @shouldSerialize(k, v)
+      packed[k]: Serializer.pack v
     packed
 
   unpack: (data) ->
