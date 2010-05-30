@@ -334,9 +334,13 @@ class Mass extends Observable
     @acceleration: o.acceleration or new Vector()
     @rotation: o.rotation or 0
     @rotationalVelocity: o.rotationalVelocity or 0
+    @lifetime: o.lifetime or 24 * 60
 
   explode: ->
-    this.universe.remove this
+    @remove()
+
+  remove: ->
+    @universe.remove this
 
   solid: true
   overlaps: (other) ->
@@ -347,13 +351,12 @@ class Mass extends Observable
 
   step: (dt) ->
     @tick += dt
+    return @remove() if (@lifetime -= dt) < 0
 
     for t in [0...dt]
       @velocity: @velocity.plus @acceleration
       @position: @position.plus @velocity
-      # drag
-      @acceleration: @acceleration.times 0.5
-
+      @acceleration: @acceleration.times 0.5 # drag
       @rotation += @rotationalVelocity
 
   render: (ctx) ->
@@ -387,6 +390,10 @@ class Ship extends Mass
     super options
 
     @bullets: []
+
+  step: (dt) ->
+    @lifetime += dt if this is @universe.ship
+    super dt
 
   setName: (name) ->
     @name: name
@@ -452,8 +459,6 @@ class Asteroid extends Mass
 
     super options
 
-    @lifetime: 24 * 60
-
     unless (@points: options.points)?
       l: 4 * Math.random() + 8
       @points: new Vector(2 * Math.PI * i / l).times(@radius * Math.random() + @radius / 3) for i in [0 .. l]
@@ -471,7 +476,6 @@ class Asteroid extends Mass
 
   step: (dt) ->
     super dt
-    @universe.remove this if (@lifetime -= dt) < 0
 
   _render: (ctx) ->
     p: @points
@@ -487,13 +491,13 @@ class Bullet extends Mass
 
   constructor: (options) ->
     @ship: options.ship
-    @lifetime: 24 * 3
     rotation: new Vector(@ship.rotation).times(@ship.radius)
 
     options: or {}
     options.radius: or 2
     options.position: or @ship.position.plus rotation
     options.velocity: new Vector(@ship.rotation).times(12)
+    options.lifetime: or 24 * 3
 
     super options
 
@@ -501,9 +505,8 @@ class Bullet extends Mass
 
   step: (dt) ->
     super dt
-    @explode() if (@lifetime -= dt) < 0
 
-  explode: ->
+  remove: ->
     super()
     @ship.removeBullet this if @ship?
 
@@ -535,7 +538,6 @@ class Explosion extends Mass
 
   step: (dt) ->
     super(dt)
-    @explode() if (@lifetime -= dt) < 0
 
   _render: (ctx) ->
     if 'fillText' in ctx
