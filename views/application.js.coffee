@@ -72,7 +72,7 @@ class Controller
 
   start: ->
     @universe: new Universe { canvas: @canvas }
-    @ship: @universe.ship
+    @ship: @universe.buildShip()
     @universe.start()
 Lz.Controller: Controller
 
@@ -131,7 +131,6 @@ class Universe
     @renderNames: true
     @io: new IOQueue()
     @silent: false
-    @buildShip()
 
   send: (action, mass) ->
     unless @silent
@@ -236,6 +235,7 @@ class Universe
     @ship.observe 'explode', =>
       @buildShip()
       @startShip()
+    @ship
 
   startShip: ->
     @add @ship
