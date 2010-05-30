@@ -68,24 +68,11 @@ class Controller
 
   setName: (name) ->
     @ship.setName name
-
-  buildShip: (universe) ->
-    [w, h]: [@canvas.width, @canvas.height]
-    [x, y]: [Math.random() * w/2 + w/4, Math.random() * h/2 + h/4]
-
-    @ship: new Ship {
-      position: new Vector x, y
-      rotation: -Math.PI / 2
-    }
-    @ship.observe 'explode', @buildShip <- this, universe
-
-    universe.add @ship
-    universe.ship: @ship
+    @universe.startShip()
 
   start: ->
     @universe: new Universe { canvas: @canvas }
-    @buildShip @universe
-
+    @ship: @universe.ship
     @universe.start()
 Lz.Controller: Controller
 
@@ -144,6 +131,7 @@ class Universe
     @renderNames: true
     @io: new IOQueue()
     @silent: false
+    @buildShip()
 
   send: (action, mass) ->
     unless @silent
@@ -234,6 +222,23 @@ class Universe
       centripetal: inside.minus(outside).normalized().times(3*Math.random()+1)
 
       @add new Asteroid { position: outside, velocity: centripetal }
+
+  buildShip: ->
+    [w, h]: [@canvas.width, @canvas.height]
+    [x, y]: [Math.random() * w/2 + w/4, Math.random() * h/2 + h/4]
+
+    name: @ship?.name
+    @ship: new Ship {
+      position: new Vector x, y
+      rotation: -Math.PI / 2
+    }
+    @ship.setName name
+    @ship.observe 'explode', =>
+      @buildShip()
+      @startShip()
+
+  startShip: ->
+    @add @ship
 
   checkCollisions: ->
     return unless @ship?
@@ -397,7 +402,6 @@ class Ship extends Mass
 
   setName: (name) ->
     @name: name
-    @universe.update this
 
   explode: ->
     super()
