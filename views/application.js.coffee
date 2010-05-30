@@ -627,9 +627,8 @@ class Serializer
   pack: (instance) ->
     packed: { serializer: @name }
     for k, v of instance
-      if @shouldSerialize(k, v)
-        v: Serializer.pack v
-        packed[k]: v if v?
+      if v? and @shouldSerialize(k, v)
+        packed[k]: Serializer.pack v
     packed
 
   unpack: (data) ->
