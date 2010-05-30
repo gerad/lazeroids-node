@@ -34,7 +34,7 @@ test "receive", (t) ->
   c: new Lz.Connection()
 
   t.expect 1
-  c.receive (msg) ->
+  c.observe "message", (msg) ->
     t.equals msg, message
   mockSocket.sendMessage message
 

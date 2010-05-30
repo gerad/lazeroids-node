@@ -1,8 +1,8 @@
 helpers.extend global, require('./test-helper')
 
-sockets: universes: null
+universes: null
 before ->
-  sockets: []
+  EchoSocket.sockets: []
   universes: []
   createUniverse() for i in [0...2]
   for i in [0...2]
@@ -33,17 +33,19 @@ createUniverse: ->
 class EchoSocket
   constructor: ->
     @o: new Lz.Observable()
-    @trigger: @o.trigger <- @o
 
   connect: ->
-    sockets.push this
+    EchoSocket.sockets.push this
 
   send: (msg) ->
-    s.trigger('message', JSON.stringify(msg)) for s in sockets
+    s.trigger 'message', msg for s in EchoSocket.sockets
 
-  addEvent: (name, fn) ->
-    @o.observe 'message', (msg) ->
-      fn(JSON.parse(msg))
+  trigger: (args...) ->
+    @o.trigger args...
+
+  addEvent: (args...) ->
+    @o.observe args...
+EchoSocket.sockets: []
 
 this.io: { Socket: EchoSocket }
 

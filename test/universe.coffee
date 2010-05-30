@@ -29,8 +29,7 @@ test "step", (t) ->
 test "network add does not update ntick", (t) ->
   m1: new Lz.Mass()
 
-  # TODO use mocks instead of updating private vars
-  u.io.inbox.push ['add', m1.pack()]
+  u.io.inbox.push ['add', m1] # TODO don't rely on private vars
   u.step 100
   u.network()
 

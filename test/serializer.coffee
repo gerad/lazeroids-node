@@ -3,8 +3,8 @@ helpers.extend global, require('./test-helper')
 cc: cc2: serialized: null
 before ->
   cc: new Cereal('Captain Crunch')
-  serialized: cc.pack()
-  cc2: Lz.Serializer.unpack(serialized)
+  serialized: Lz.Serializer.pack cc
+  cc2: Lz.Serializer.unpack serialized
 
 test "serialize", (t) ->
   t.expect 1
@@ -30,7 +30,7 @@ test "universe excluded", (t) ->
   u: new Lz.Universe()
   m: new Lz.Mass()
   u.add m
-  data: m.pack()
+  data: Lz.Serializer.pack m
 
   t.expect 1
   t.ok !data.universe?, 'universe is not serialized'
@@ -44,7 +44,7 @@ test "bullet does not include ship", (t) ->
   b: s.bullets[0]
 
   t.expect 1
-  t.ok !b.pack().ship?, 'ship is not serialized'
+  t.ok !Lz.Serializer.pack(b).ship?, 'ship is not serialized'
   t.done()
 
 test "ship does not include bullets", (t) ->
@@ -52,7 +52,7 @@ test "ship does not include bullets", (t) ->
   s: new Lz.Ship()
   u.add s
   s.shoot()
-  s2: Lz.Serializer.unpack s.pack()
+  s2: Lz.Serializer.unpack Lz.Serializer.pack s
 
   t.expect 2
   t.equals s.bullets.length, 1
@@ -69,14 +69,14 @@ test "mass in object", (t) ->
 
 test "asteroid", (t) ->
   original: new Lz.Asteroid()
-  unpacked: Lz.Serializer.unpack original.toJSON()
+  unpacked: Lz.Serializer.unpack Lz.Serializer.pack original
   t.same original, unpacked
   t.done()
 
 test "bullet", (t) ->
   s: new Lz.Ship()
   original: new Lz.Bullet({ ship: s })
-  unpacked: Lz.Serializer.unpack original.toJSON()
+  unpacked: Lz.Serializer.unpack Lz.Serializer.pack original
   delete original.ship
   t.same original, unpacked
   t.done()

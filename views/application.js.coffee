@@ -109,7 +109,7 @@ class IOQueue
 
   connect: ->
     @con: new Connection()
-    @con.receive (data) =>
+    @con.observe 'message', (data) =>
       @inbox: @inbox.concat data
 
 class MassStorage
@@ -201,7 +201,7 @@ class Universe
   perform: (method, data) ->
     console.log "Performing $method with:"
     console.dir data
-    this[method] Serializer.unpack data
+    this[method] data
 
   status: (message) ->
     status { message: message }
@@ -585,83 +585,86 @@ class Connection
       port: 8000
     }
     @socket.connect()
+    @o: new Observable()
+    @observingSocket: {}
 
   send: (obj) ->
-    @socket.send obj
+    @socket.send Serializer.pack obj
 
-  receive: (fn) ->
-    @socket.addEvent 'message', fn
+  observe: (msg, fn) ->
+    @o.observe msg, fn
+    @observeSocket msg
+
+  trigger: (msg, data) ->
+    @o.trigger msg, Serializer.unpack data
+
+  observeSocket: (eventName) ->
+    return if @observingSocket[eventName]
+    @observingSocket[eventName]: true
+
+    @socket.addEvent eventName, (data) =>
+      @trigger eventName, data
 
 Lz.Connection: Connection
 
 class Serializer
-  constructor: (klass) ->
-    [type, options]: Serializer.parseOptions klass.prototype
-    @type: type
-    @allowNesting: options?.allowNesting or false
+  constructor: (klass, name, options) ->
+    [@klass, @name]: [klass, name]
+
+    @allowNesting: options?.allowNesting
     @allowed: {}
     for i in _.compact _.flatten [options?.exclude]
       @allowed[i]: false
+
+    # constructorless copy of the class
+    @copy: -> # empty constructor
+    @copy.prototype: @klass.prototype # same prototype
 
   shouldSerialize: (name, value) ->
     @allowed[name] ?= _.isString(value) or
       _.isNumber(value) or
       _.isBoolean(value) or
       _.isArray(value) or
-      value.serialize?
+      value.serializer?.allowNesting
 
   pack: (instance) ->
-    return if Serializer.nesting and !@allowNesting
-    packed: { serialize: @type }
+    packed: { serializer: @name }
     for k, v of instance
       if @shouldSerialize(k, v)
         v: Serializer.pack v
         packed[k]: v if v?
     packed
 
+  unpack: (data) ->
+    unpacked: new @copy()
+    delete data.serializer
+    for k, v of data
+      unpacked[k]: Serializer.unpack v
+    unpacked
+
 _.extend Serializer, {
-  classes: {}
-
-  dummyClass: (klass) ->
-    # a copy of the class with a dummy constructor
-    dummy: (data) -> _.extend this, data
-    dummy.prototype: klass.prototype
-    dummy
-
-  bless: (klass) ->
-    s: new Serializer(klass)
-    Serializer.classes[s.type]: or Serializer.dummyClass klass
-
-    # add reference to the prototype
-    klass::pack: (args...) -> s.pack(this, args...)
-    klass::toJSON: klass::pack
+  instances: {}
 
   pack: (data) ->
-    if data.serialize?
-      Serializer.nesting: true
-      ret: data.pack()
-      Serializer.nesting: false
-      ret
+    if s: data?.serializer
+      s.pack data
     else if _.isArray(data)
       Serializer.pack i for i in data
     else
       data
 
-  parseOptions: (obj) ->
-    _.flatten [ obj.serialize ]
-
   unpack: (data) ->
-    if data.serialize?
-      [type, options]: Serializer.parseOptions data
-      delete data.serialize
-      for k, v of data
-        data[k]: Serializer.unpack v
-      new Serializer.classes[type](data)
+    if s: Serializer.instances[data?.serializer]
+      s.unpack data
+    else if _.isArray(data)
+      Serializer.unpack i for i in data
     else
-      if _.isArray(data)
-        Serializer.unpack i for i in data
-      else
-        data
+      data
+
+  bless: (klass) ->
+    [name, options]: _.flatten [ klass::serialize ]
+    klass::serializer: new Serializer(klass, name, options)
+    Serializer.instances[name]: klass::serializer
 
   blessAll: (namespace) ->
     for k, v of namespace when v::serialize?
