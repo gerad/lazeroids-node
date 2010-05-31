@@ -73,7 +73,6 @@ class Controller
 
   start: ->
     @universe: new Universe { canvas: @canvas }
-    @ship: @universe.buildShip()
     @universe.start()
 Lz.Controller: Controller
 
@@ -222,21 +221,16 @@ class Universe
 
       @add new Asteroid { position: outside, velocity: centripetal }
 
-  buildShip: ->
+  buildShip: (name) ->
     [w, h]: [@canvas.width, @canvas.height]
     [x, y]: [Math.random() * w/2 + w/4, Math.random() * h/2 + h/4]
 
     @ship: new Ship {
       position: new Vector x, y
       rotation: -Math.PI / 2
-      name: @ship.name
+      name: name
     }
-    @ship.observe 'explode', =>
-      @buildShip()
-      @startShip()
-    @ship
-
-  startShip: ->
+    @ship.observe 'explode', @buildShip <- this, name
     @add @ship
 
   checkCollisions: ->
