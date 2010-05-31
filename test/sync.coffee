@@ -5,8 +5,7 @@ before ->
   EchoSocket.sockets: []
   universes: []
   createUniverse() for i in [0...2]
-  for i in [0...2]
-    u.network() for u in universes
+  network()
 
 test "setup", (t) ->
   t.expect 2
@@ -23,12 +22,24 @@ test "sync", (t) ->
 
   t.done()
 
+test "request sync", (t) ->
+  universes[1].startShip()
+  universes[0].requestSync()
+  network()
+  t.ok universes[0].masses.find universes[1].ship, "started ship sync'd"
+  t.ok !universes[1].masses.find universes[0].ship, "unstarted ship not sync'd"
+  t.done()
+
 createUniverse: ->
   u: new Lz.Universe()
   m: new Lz.Mass()
   u.add m
   u.setupConnection()
   universes.push u
+
+network: ->
+  for i in [0...2]
+    u.network() for u in universes
 
 class EchoSocket
   constructor: ->

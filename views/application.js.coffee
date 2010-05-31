@@ -133,10 +133,10 @@ class Universe
     @silent: false
     @buildShip()
 
-  send: (action, mass) ->
-    unless @silent
-      mass.ntick: @tick
-      @io.send action, mass
+  send: (action, mass, force) ->
+    return if @silent and !force
+    mass.ntick: @tick
+    @io.send action, mass
 
   silently: (fn) ->
     @silent: true
@@ -159,9 +159,17 @@ class Universe
     status { objects: @masses.length }
     @send 'remove', mass
 
+  requestSync: ->
+    @send 'sync', @ship
+
+  sync: (near) ->
+    return unless @shipStarted()
+    @send 'update', @ship, true
+
   start: ->
     @setupCanvas()
     @setupConnection()
+    @requestSync()
     @loop()
 
     if document?.domain is 'lazeroids.com'
@@ -240,8 +248,11 @@ class Universe
     @ship.name: name
     @add @ship
 
+  shipStarted: ->
+    @masses.find @ship
+
   checkCollisions: ->
-    return unless @masses.find @ship
+    return unless @shipStarted()
 
     # ship collisions
     for id, m of @masses.items
