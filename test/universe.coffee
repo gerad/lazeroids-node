@@ -2,7 +2,9 @@ helpers.extend global, require('./test-helper')
 
 u: m: null
 before ->
-  u: new Lz.Universe()
+  u: new Lz.Universe {
+    canvas: {}
+  }
   m: new Lz.Mass()
   u.add m
 
@@ -51,6 +53,10 @@ test "primary ship doesn't expire", (t) ->
   u.ship: s
   u.step s.lifetime + 1
   t.ok u.masses.find s, "ship remains in universe"
+  t.done()
+
+test "buildShip", (t) ->
+  u.buildShip 'bob'
   t.done()
 
 run(__filename)
