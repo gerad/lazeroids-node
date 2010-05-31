@@ -648,8 +648,7 @@ class Serializer
 
   unpack: (data) ->
     unpacked: new @copy()
-    delete data.serializer
-    for k, v of data
+    for k, v of data when k isnt 'serializer'
       unpacked[k]: Serializer.unpack v
     unpacked
 
