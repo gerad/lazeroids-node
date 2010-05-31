@@ -69,7 +69,7 @@ class Controller
           ship.thrust()
 
   setName: (name) ->
-    @universe.buildShip(name)
+    @universe.startShip name
 
   start: ->
     @universe: new Universe { canvas: @canvas }
@@ -131,6 +131,7 @@ class Universe
     @renderNames: true
     @io: new IOQueue()
     @silent: false
+    @ship: new Ship()
 
   send: (action, mass) ->
     unless @silent
@@ -221,19 +222,25 @@ class Universe
 
       @add new Asteroid { position: outside, velocity: centripetal }
 
-  buildShip: (name) ->
+  resurrectShip: ->
     [w, h]: [@canvas.width, @canvas.height]
     [x, y]: [Math.random() * w/2 + w/4, Math.random() * h/2 + h/4]
 
     @ship: new Ship {
       position: new Vector x, y
       rotation: -Math.PI / 2
-      name: name
+      name: @ship.name
     }
-    @ship.observe 'explode', @buildShip <- this, name
+    @ship.observe 'explode', @resurrectShip <- this, name
     @add @ship
 
+  startShip: (name) ->
+    @ship.name: name
+    @resurrectShip()
+
   checkCollisions: ->
+    return unless @masses.find @ship
+
     # ship collisions
     for id, m of @masses.items
       if m.overlaps @ship
