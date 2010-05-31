@@ -400,6 +400,7 @@ class Ship extends Mass
     super dt
 
   explode: ->
+    return unless this is @universe.ship
     super()
     @universe.add(new Explosion({ from: this }))
     @trigger('explode')
