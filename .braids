@@ -58,7 +58,7 @@ lib/nodeunit:
 lib/socket.io: 
   branch: master
   remote: braid/lib/socket.io
-  revision: 1918b753600c98c271dd46286028de9c2b8167aa
+  revision: 71d80181fa83eec8b647f198bb473ebee38f8df4
   squashed: true
   type: git
   url: git://github.com/visnup/Socket.IO-node.git
