@@ -55,8 +55,8 @@ test "primary ship doesn't expire", (t) ->
   t.ok u.masses.find s, "ship remains in universe"
   t.done()
 
-test "buildShip", (t) ->
-  u.buildShip 'bob'
+test "start ship", (t) ->
+  u.startShip 'bob'
   t.done()
 
 run(__filename)

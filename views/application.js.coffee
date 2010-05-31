@@ -231,7 +231,7 @@ class Universe
       rotation: -Math.PI / 2
       name: @ship.name
     }
-    @ship.observe 'explode', @resurrectShip <- this, name
+    @ship.observe 'explode', @resurrectShip <- this
     @add @ship
 
   startShip: (name) ->
