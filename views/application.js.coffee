@@ -51,7 +51,7 @@ class Controller
     $(document.body).bind 'touchstart', (e) ->
       { screenX: x0, screenY: y0 }: e.originalEvent.targetTouches[0]
       [x1, y1]: [x0, y0]
-    $(document.body).bind 'touchmove', (e) =>
+    $(document.body).bind 'touchmove', (e) ->
       { screenX: x1, screenY: y1 }: e.originalEvent.targetTouches[0]
     $(document.body).bind 'touchend', (e) =>
       [dx, dy]: [x1-x0, y1-y0]
