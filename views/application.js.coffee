@@ -131,7 +131,7 @@ class Universe
     @renderNames: true
     @io: new IOQueue()
     @silent: false
-    @ship: new Ship()
+    @buildShip()
 
   send: (action, mass) ->
     unless @silent
@@ -164,8 +164,9 @@ class Universe
     @setupConnection()
     @loop()
 
-    @injectAsteroids 5
-    setInterval (@injectAsteroids <- this, 3), 5000
+    if document?.domain is 'lazeroids.com'
+      @injectAsteroids 5
+      setInterval (@injectAsteroids <- this, 3), 5000
 
     play 'ambient', { loop: true }
 
@@ -222,21 +223,22 @@ class Universe
 
       @add new Asteroid { position: outside, velocity: centripetal }
 
-  resurrectShip: ->
-    [w, h]: [@canvas.width, @canvas.height]
+  buildShip: ->
+    [w, h]: [@canvas?.width, @canvas?.height]
     [x, y]: [Math.random() * w/2 + w/4, Math.random() * h/2 + h/4]
 
     @ship: new Ship {
       position: new Vector x, y
       rotation: -Math.PI / 2
-      name: @ship.name
+      name: @ship?.name
     }
-    @ship.observe 'explode', @resurrectShip <- this
-    @add @ship
+    @ship.observe 'explode', =>
+      @buildShip()
+      @add @ship
 
   startShip: (name) ->
     @ship.name: name
-    @resurrectShip()
+    @add @ship
 
   checkCollisions: ->
     return unless @masses.find @ship

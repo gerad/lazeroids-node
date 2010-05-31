@@ -2,9 +2,7 @@ helpers.extend global, require('./test-helper')
 
 u: m: null
 before ->
-  u: new Lz.Universe {
-    canvas: {}
-  }
+  u: new Lz.Universe()
   m: new Lz.Mass()
   u.add m
 
