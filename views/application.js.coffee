@@ -145,6 +145,7 @@ class Universe
 
   add: (mass) ->
     @masses.add mass
+    mass.tick ?= @tick
     status { objects: @masses.length }
     @send 'add', mass
 
@@ -186,12 +187,14 @@ class Universe
 
   step: (dt) ->
     @tick += dt
-    mass.step dt for id, mass of @masses.items
+    mass.step() for id, mass of @masses.items
     @checkCollisions() if @ship?
 
   network: ->
     @silently =>
-      @perform method, data for [method, data] in @io.read()
+      for [method, data] in @io.read()
+        @tick: data.ntick if data.ntick? and data.ntick > @tick
+        @perform method, data
     @io.flush()
 
   perform: (method, data) ->
@@ -342,8 +345,6 @@ class Mass extends Observable
   constructor: (options) ->
     o: options or {}
     @id: Math.uuid()
-    @tick: o.tick or 0
-    @ntick: o.ntick or 0 # network tick
     @radius: o.radius or 1
     @position: o.position or new Vector()
     @velocity: o.velocity or new Vector()
@@ -365,8 +366,8 @@ class Mass extends Observable
 
     diff < @radius or diff < other.radius
 
-  step: (dt) ->
-    @tick += dt
+  step: ->
+    dt: @universe.tick - @tick
     return @remove() if (@lifetime -= dt) < 0
 
     for t in [0...dt]
@@ -374,6 +375,8 @@ class Mass extends Observable
       @position: @position.plus @velocity
       @acceleration: @acceleration.times 0.5 # drag
       @rotation += @rotationalVelocity
+
+    @tick: @universe.tick
 
   render: (ctx) ->
     ctx.save()
@@ -408,9 +411,9 @@ class Ship extends Mass
     @name: options.name
     @bullets: []
 
-  step: (dt) ->
-    @lifetime += dt if this is @universe.ship
-    super dt
+  step: ->
+    @lifetime += (@universe.tick - @tick) if this is @universe.ship
+    super()
 
   explode: ->
     return unless this is @universe.ship
