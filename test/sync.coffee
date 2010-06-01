@@ -30,12 +30,38 @@ test "request sync", (t) ->
   t.ok !universes[1].masses.find universes[0].ship, "unstarted ship not sync'd"
   t.done()
 
+test "update ticks", (t) ->
+  universes[0].startShip()
+  universes[0].step 100
+  universes[1].requestSync()
+  network()
+  t.equals universes[0].tick, universes[1].tick
+  t.done()
+
+test "masses sync at different speed", (t) ->
+  universes[0].startShip()
+  universes[0].step 100
+  universes[1].requestSync()
+  network()
+  universes[1].step 0
+  for id, mass of universes[1].masses.items
+    other: universes[0].masses.find mass
+    t.ok other
+    t.same Lz.Serializer.pack(mass), Lz.Serializer.pack(other)
+  t.done()
+
 createUniverse: ->
   u: new Lz.Universe()
   m: new Lz.Mass()
+  m.velocity: randomVector()
   u.add m
   u.setupConnection()
   universes.push u
+
+randomVector: (max) ->
+  max ?= 10
+  [x, y]: Math.floor(max * (2*Math.random()-1)) for i in [1..2]
+  new Lz.Vector(x, y)
 
 network: ->
   for i in [0...2]
