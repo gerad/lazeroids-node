@@ -490,9 +490,6 @@ class Asteroid extends Mass
         @universe.add a
     @universe.add(new Explosion({ from: this }))
 
-  step: (dt) ->
-    super dt
-
   _render: (ctx) ->
     p: @points
     ctx.beginPath()
@@ -518,9 +515,6 @@ class Bullet extends Mass
     super options
 
     play 'shoot'
-
-  step: (dt) ->
-    super dt
 
   remove: ->
     super()
@@ -551,9 +545,6 @@ class Explosion extends Mass
   solid: false
   overlaps: (other) ->
     @solid
-
-  step: (dt) ->
-    super(dt)
 
   _render: (ctx) ->
     if 'fillText' in ctx
