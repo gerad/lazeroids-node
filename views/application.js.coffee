@@ -435,6 +435,7 @@ Lz.Mass: Mass
 class Ship extends Mass
   serialize: ['Ship', { exclude: 'bullets' }]
   ship: true
+  MAX_POWER: 10
 
   constructor: (options) ->
     options: or {}
@@ -442,10 +443,14 @@ class Ship extends Mass
     super options
 
     @name: options.name
+    @power: options.power or @MAX_POWER
     @bullets: []
 
   step: ->
-    @lifetime += (@universe.tick - @tick) if this is @universe.ship
+    if this is @universe.ship
+      dt: @universe.tick - @tick
+      @lifetime += dt
+      @energy dt
     super()
 
   explode: ->
@@ -473,10 +478,17 @@ class Ship extends Mass
     @universe.update this
 
   shoot: ->
+    return unless @energy(-10)
     p: new Vector(@rotation)
     b: new Bullet { ship: this }
     @universe.add b
     @bullets.push b
+
+  energy: (delta) ->
+    return false if @power + delta < 0
+    @power += delta
+    @power: @MAX_POWER if @power > @MAX_POWER
+    true
 
   warp: ->
     @position: @universe.bounds.randomPosition()
