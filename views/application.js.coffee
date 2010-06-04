@@ -545,7 +545,7 @@ class Bullet extends Mass
     options: or {}
     options.radius: or 2
     options.position: or @ship.position.plus rotation
-    options.velocity: new Vector(@ship.rotation).times(12)
+    options.velocity: new Vector(@ship.rotation).times(12).plus @ship.velocity
     options.lifetime: or 24 * 3
 
     super options
