@@ -511,7 +511,7 @@ Lz.Ship: Ship
 
 class Asteroid extends Mass
   serialize: 'Asteroid'
-  RADIUS_BIG: 40
+  RADIUS_BIG: 50
   RADIUS_SMALL: 20
 
   constructor: (options) ->
