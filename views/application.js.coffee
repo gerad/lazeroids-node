@@ -161,12 +161,11 @@ class Universe
 
   update: (mass) ->
     existing: @masses.find(mass)
-    if not existing?
-      @add mass
-    else if existing.ntick < mass.ntick
+    if not existing? or existing.ntick < mass.ntick
       mass.universe: this
+      @ships.update mass if mass.ship?
       @masses.update mass
-      @send 'update', mass
+    @send 'update', mass
 
   remove: (mass) ->
     @masses.remove mass
@@ -182,6 +181,7 @@ class Universe
     @send 'connect', @ship
 
   disconnect: (connectionId) ->
+    debugger
     ship: @ships.get connectionId
     @remove ship if ship?
 
@@ -627,7 +627,7 @@ class Connection extends Observable
       resource: 'comet'
       port: 8000
     }
-    @observingSocket: {}
+    @setupObservers()
 
   send: (obj) ->
     @socket.send Serializer.pack obj
@@ -637,9 +637,12 @@ class Connection extends Observable
     @observeSocket msg
 
   connect: ->
+    @socket.connect()
+
+  setupObservers: ->
+    @observingSocket: {}
     @observe "connect", =>
       @id: @socket.transport.sessionid
-    @socket.connect()
 
   observeSocket: (eventName) ->
     return if @observingSocket[eventName]
@@ -647,7 +650,6 @@ class Connection extends Observable
 
     @socket.addEvent eventName, (data) =>
       @trigger eventName, Serializer.unpack data
-
 Lz.Connection: Connection
 
 class Serializer
