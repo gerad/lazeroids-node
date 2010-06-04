@@ -70,9 +70,11 @@ network: ->
 class EchoSocket
   constructor: ->
     @o: new Lz.Observable()
+    @transport: { sessionid: 'echosocket' }
 
   connect: ->
     EchoSocket.sockets.push this
+    @trigger 'connect'
 
   send: (msg) ->
     s.trigger 'message', msg for s in EchoSocket.sockets

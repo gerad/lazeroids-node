@@ -80,13 +80,14 @@ class IOQueue
   constructor: ->
     @outbox: []
     @inbox: []
+    @connection: new Connection()
 
   send: (args...) ->
     @outbox.push args
 
   flush: ->
-    return unless @outbox.length and @con?
-    @con.send @outbox
+    return unless @outbox.length and @connection.id?
+    @connection.send @outbox
     @outbox: []
 
   read: ->
@@ -95,18 +96,21 @@ class IOQueue
     ret
 
   connect: ->
-    @con: new Connection()
-    @con.observe 'message', (data) =>
+    @connection.observe 'message', (data) =>
       @inbox: @inbox.concat data
+    @connection.connect()
 
 class MassStorage
-  constructor: (universe) ->
-    @universe: universe
+  constructor: (keyField) ->
+    @keyField: keyField or 'id'
     @items: {}
     @length: 0
 
+  get: (key) ->
+    @items[key]
+
   find: (mass) ->
-    @items[mass.id]
+    @items[@key mass]
 
   add: (mass) ->
     return if @find(mass)?
@@ -114,18 +118,21 @@ class MassStorage
 
   update: (mass) ->
     @length++ unless @find(mass)?
-    mass.universe: @universe
-    @items[mass.id]: mass
+    @items[@key mass]: mass
 
   remove: (mass) ->
     return unless @find(mass)?
     @length--
-    delete @items[mass.id]
+    delete @items[@key mass]
+
+  key: (mass) ->
+    mass[@keyField]
 
 class Universe
   constructor: (options) ->
     @canvas: options?.canvas
-    @masses: new MassStorage(this)
+    @masses: new MassStorage()
+    @ships: new MassStorage('connectionId')
     @tick: 0
     @zoom: 1
     @renderNames: true
@@ -139,26 +146,44 @@ class Universe
     @io.send action, mass
 
   silently: (fn) ->
+    prev: @silent
     @silent: true
     fn()
-    @silent: false
+    @silent: prev
 
   add: (mass) ->
     @masses.add mass
+    @ships.add mass if mass.ship?
+    mass.universe: this
     mass.tick ?= @tick
     status { objects: @masses.length }
     @send 'add', mass
 
   update: (mass) ->
     existing: @masses.find(mass)
-    if not existing? or existing.ntick < mass.ntick
+    if not existing?
+      @add mass
+    else if existing.ntick < mass.ntick
+      mass.universe: this
       @masses.update mass
-    @send 'update', mass
+      @send 'update', mass
 
   remove: (mass) ->
     @masses.remove mass
+    @ships.remove mass if mass.ship?
     status { objects: @masses.length }
     @send 'remove', mass
+
+  connect: (ship) ->
+    return if @ships.find ship
+    @status "$ship.name connected"
+    @silently =>
+      @add ship
+    @send 'connect', @ship
+
+  disconnect: (connectionId) ->
+    ship: @ships.get connectionId
+    @remove ship if ship?
 
   requestSync: ->
     @send 'sync', @ship
@@ -249,7 +274,7 @@ class Universe
 
   startShip: (name) ->
     @ship.name: name
-    @add @ship
+    @connect @ship
 
   shipStarted: ->
     @masses.find @ship
@@ -282,7 +307,14 @@ class Universe
     @ctx.textAlign: 'center'
 
   setupConnection: ->
+    @observeConnection()
     @io.connect()
+
+  observeConnection: ->
+    @io.connection.observe 'connect', =>
+      @ship.connectionId: @io.connection.id
+    @io.connection.observe 'disconnect', =>
+      @status "Connection lost."
 Lz.Universe: Universe
 
 class Observable
@@ -402,6 +434,7 @@ Lz.Mass: Mass
 
 class Ship extends Mass
   serialize: ['Ship', { exclude: 'bullets' }]
+  ship: true
 
   constructor: (options) ->
     options: or {}
@@ -594,7 +627,6 @@ class Connection extends Observable
       resource: 'comet'
       port: 8000
     }
-    @socket.connect()
     @observingSocket: {}
 
   send: (obj) ->
@@ -603,6 +635,11 @@ class Connection extends Observable
   observe: (msg, fn) ->
     super msg, fn
     @observeSocket msg
+
+  connect: ->
+    @observe "connect", =>
+      @id: @socket.transport.sessionid
+    @socket.connect()
 
   observeSocket: (eventName) ->
     return if @observingSocket[eventName]

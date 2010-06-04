@@ -1,11 +1,9 @@
 helpers.extend global, require('./test-helper')
+helpers.extend global, require('./helpers/mock-socket')
 
 mockSocket: null
 before ->
-  mockSocket: new MockSocket()
-  this.io: {
-    Socket: -> mockSocket
-  }
+  mockSocket: MockSocket.io()
 
 test "exists", (t) ->
   t.expect 2
@@ -39,17 +37,4 @@ test "receive", (t) ->
   mockSocket.sendMessage message
 
   t.done()
-
-class MockSocket extends Mock
-  constructor: ->
-    super()
-    @o: new Lz.Observable()
-    @expect 'connect'
-
-  sendMessage: (data) ->
-    @o.trigger 'message', data
-
-  addEvent: (name, fn) ->
-    @o.observe 'message', fn
-
 run(__filename)

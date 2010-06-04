@@ -1,7 +1,9 @@
 helpers.extend global, require('./test-helper')
+helpers.extend global, require('./helpers/mock-socket')
 
 cc: cc2: serialized: null
 before ->
+  MockSocket.io()
   cc: new Cereal('Captain Crunch')
   serialized: Lz.Serializer.pack cc
   cc2: Lz.Serializer.unpack serialized

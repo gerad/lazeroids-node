@@ -1,7 +1,9 @@
 helpers.extend global, require('./test-helper')
+helpers.extend global, require('./helpers/mock-socket')
 
 u: m: null
 before ->
+  MockSocket.io()
   u: new Lz.Universe()
   m: new Lz.Mass()
   u.add m
