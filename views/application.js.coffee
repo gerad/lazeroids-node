@@ -246,7 +246,7 @@ class Universe
     ctx.restore()
 
   injectAsteroids: (howMany) ->
-    return if @masses.length > 100
+    return if @masses.length > 80
 
     for i in [1 .. howMany || 1]
       b: @bounds
@@ -405,7 +405,7 @@ class Mass extends Observable
     for t in [0...dt]
       @velocity: @velocity.plus @acceleration
       @position: @position.plus @velocity
-      @acceleration: @acceleration.times 0.25 # drag
+      @acceleration: @acceleration.times 0.8 # drag
       @rotation += @rotationalVelocity
 
     @tick: @universe.tick
@@ -470,11 +470,11 @@ class Ship extends Mass
     ctx.restore()
 
   thrust: ->
-    @acceleration: @acceleration.plus(new Vector(@rotation).times(1.5))
+    @acceleration: @acceleration.plus(new Vector(@rotation).times(0.5))
     @universe.update this
 
   brake: ->
-    @acceleration: @acceleration.plus(new Vector(@rotation).times(-0.5))
+    @acceleration: @acceleration.plus(new Vector(@rotation).times(-0.25))
     @universe.update this
 
   shoot: ->
@@ -517,7 +517,8 @@ class Asteroid extends Mass
   constructor: (options) ->
     options: or {}
     options.radius: or @RADIUS_BIG
-    options.velocity: or new Vector(6 * Math.random() - 3, 6 * Math.random() - 3)
+    multiplier: if options.radius is @RADIUS_BIG then 6 else 12
+    options.velocity: or new Vector(multiplier * (Math.random() - 0.5), multiplier * (Math.random() - 0.5))
     options.position: (options.position or new Vector()).plus options.velocity.times(10)
     options.rotationalVelocity: or Math.random() * 0.1 - 0.05
 
