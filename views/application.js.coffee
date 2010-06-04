@@ -200,7 +200,7 @@ class Universe
 
     if document?.domain is 'lazeroids.com'
       @injectAsteroids 5
-      setInterval (@injectAsteroids <- this, 3), 1000
+      setInterval (@injectAsteroids <- this, 3), 5000
 
     play 'ambient', { loop: true }
 
@@ -511,17 +511,17 @@ Lz.Ship: Ship
 
 class Asteroid extends Mass
   serialize: 'Asteroid'
-  RADIUS_BIG: 50
+  RADIUS_BIG: 40
   RADIUS_SMALL: 20
 
   constructor: (options) ->
     options: or {}
     options.radius: or @RADIUS_BIG
-    multiplier: if options.radius is @RADIUS_BIG then 6 else 12
+    multiplier: if options.radius is @RADIUS_BIG then 5 else 10
     options.velocity: or new Vector(multiplier * (Math.random() - 0.5), multiplier * (Math.random() - 0.5))
     options.position: (options.position or new Vector()).plus options.velocity.times(10)
     options.rotationalVelocity: or Math.random() * 0.1 - 0.05
-
+    options.lifetime: or 24 * 30
     super options
 
     unless (@points: options.points)?
