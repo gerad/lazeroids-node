@@ -200,7 +200,7 @@ class Universe
 
     if document?.domain is 'lazeroids.com'
       @injectAsteroids 5
-      setInterval (@injectAsteroids <- this, 3), 5000
+      setInterval (@injectAsteroids <- this, 3), 1000
 
     play 'ambient', { loop: true }
 
@@ -246,7 +246,7 @@ class Universe
     ctx.restore()
 
   injectAsteroids: (howMany) ->
-    return if @masses.length > 80
+    return if @masses.length > 100
 
     for i in [1 .. howMany || 1]
       b: @bounds
@@ -405,7 +405,7 @@ class Mass extends Observable
     for t in [0...dt]
       @velocity: @velocity.plus @acceleration
       @position: @position.plus @velocity
-      @acceleration: @acceleration.times 0.5 # drag
+      @acceleration: @acceleration.times 0.25 # drag
       @rotation += @rotationalVelocity
 
     @tick: @universe.tick
@@ -470,11 +470,11 @@ class Ship extends Mass
     ctx.restore()
 
   thrust: ->
-    @acceleration: @acceleration.plus(new Vector(@rotation))
+    @acceleration: @acceleration.plus(new Vector(@rotation).times(1.5))
     @universe.update this
 
   brake: ->
-    @acceleration: @acceleration.plus(new Vector(@rotation).times(-1))
+    @acceleration: @acceleration.plus(new Vector(@rotation).times(-0.5))
     @universe.update this
 
   shoot: ->
