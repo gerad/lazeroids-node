@@ -101,24 +101,23 @@ class IOQueue
     @connection.connect()
 
 class MassStorage
-  constructor: (keyField) ->
-    @keyField: keyField or 'id'
+  constructor: ->
     @items: {}
     @length: 0
-
-  get: (key) ->
-    @items[key]
 
   find: (mass) ->
     @items[@key mass]
 
   add: (mass) ->
     return if @find(mass)?
-    @update mass
+    @length++
+    @set mass
 
   update: (mass) ->
-    @length++ unless @find(mass)?
-    @items[@key mass]: mass
+    if @find(mass)?
+      @set mass
+    else
+      @add mass
 
   remove: (mass) ->
     return unless @find(mass)?
@@ -126,13 +125,32 @@ class MassStorage
     delete @items[@key mass]
 
   key: (mass) ->
-    mass[@keyField]
+    mass.id
+
+  set: (mass) ->
+    @items[@key mass]: mass
+
+class ShipStorage extends MassStorage
+  find: (mass) ->
+    ship: super mass
+    ship if ship?.id is mass.id
+
+  key: (mass) ->
+    mass.connectionId
+
+  get: (connectionId) ->
+    @items[connectionId]
+
+  set: (mass) ->
+    toSet: @items[mass.connectionId]
+    if !toSet? or mass.id is toSet.id
+      super mass
 
 class Universe
   constructor: (options) ->
     @canvas: options?.canvas
     @masses: new MassStorage()
-    @ships: new MassStorage('connectionId')
+    @ships: new ShipStorage()
     @tick: 0
     @zoom: 1
     @renderNames: true
@@ -178,10 +196,9 @@ class Universe
     @status "$ship.name connected"
     @silently =>
       @add ship
-    @send 'connect', @ship
+    @send 'connect', ship
 
   disconnect: (connectionId) ->
-    debugger
     ship: @ships.get connectionId
     @remove ship if ship?
 
@@ -198,9 +215,9 @@ class Universe
     @requestSync()
     @loop()
 
-    if document?.domain is 'lazeroids.com'
-      @injectAsteroids 5
-      setInterval (@injectAsteroids <- this, 3), 5000
+    @injectAsteroids 5
+    setInterval (@injectAsteroids <- this, 3), 5000
+    setInterval (@updateLeaderboard <- this), 1000
 
     play 'ambient', { loop: true }
 
@@ -257,7 +274,7 @@ class Universe
       inside: b.randomPosition()
       centripetal: inside.minus(outside).normalized().times(3*Math.random()+1)
 
-      @add new Asteroid { position: outside, velocity: centripetal }
+      @add new BigAsteroid { position: outside, velocity: centripetal }
 
   buildShip: ->
     [w, h]: [@canvas?.width, @canvas?.height]
@@ -267,6 +284,8 @@ class Universe
       position: new Vector x, y
       rotation: -Math.PI / 2
       name: @ship?.name
+      score: @ship?.score
+      connectionId: @ship?.connectionId
     }
     @ship.observe 'explode', =>
       @buildShip()
@@ -285,6 +304,7 @@ class Universe
     # ship collisions
     for id, m of @masses.items
       if m.overlaps @ship
+        @updateScore(@ship)
         @ship.explode()
         break
 
@@ -292,9 +312,26 @@ class Universe
     for b in @ship.bullets
       for id, m of @masses.items
         if m.overlaps b
+          @updateScore(m)
           m.explode()
           b.explode()
           break
+
+  updateLeaderboard: ->
+    scores: for k, ship of @ships.items
+      { name: ship.name, value: ship.score, focus: ship is @ship }
+    leaderboard scores
+
+  updateScore: (mass) ->
+    value: if mass is @ship
+      Math.floor(- mass.score / 2)
+    else
+      mass.value
+    @silently =>
+      s: new Score { from: mass, value: value }
+      @add s
+    @ship.score += value
+    @send 'update', @ship
 
   setupCanvas: ->
     @bounds: new Bounds @canvas
@@ -373,6 +410,7 @@ class Bounds
 
 class Mass extends Observable
   serialize: 'Mass'
+  value: 0 # points
 
   constructor: (options) ->
     o: options or {}
@@ -435,7 +473,8 @@ Lz.Mass: Mass
 class Ship extends Mass
   serialize: ['Ship', { exclude: 'bullets' }]
   ship: true
-  MAX_POWER: 10
+  maxEnergy: 10
+  value: 1000
 
   constructor: (options) ->
     options: or {}
@@ -443,14 +482,16 @@ class Ship extends Mass
     super options
 
     @name: options.name
-    @power: options.power or @MAX_POWER
+    @energy: options.energy or @maxEnergy
+    @score: options.score or 0
+    @connectionId: options.connectionId
     @bullets: []
 
   step: ->
     if this is @universe.ship
       dt: @universe.tick - @tick
       @lifetime += dt
-      @energy dt
+      @power dt
     super()
 
   explode: ->
@@ -479,16 +520,16 @@ class Ship extends Mass
     @universe.update this
 
   shoot: ->
-    return unless @energy(-10)
+    return unless @power(-10) # I can't do it captain, I don't have the power
     p: new Vector(@rotation)
     b: new Bullet { ship: this }
     @universe.add b
     @bullets.push b
 
-  energy: (delta) ->
-    return false if @power + delta < 0
-    @power += delta
-    @power: @MAX_POWER if @power > @MAX_POWER
+  power: (delta) ->
+    return false if @energy + delta < 0
+    @energy += delta
+    @energy: @maxEnergy if @energy > @maxEnergy
     true
 
   warp: ->
@@ -512,42 +553,51 @@ Lz.Ship: Ship
 
 class Asteroid extends Mass
   serialize: 'Asteroid'
-  RADIUS_BIG: 40
-  RADIUS_SMALL: 20
+  radius: 40
+  topSpeed: 5
+  value: 100
 
   constructor: (options) ->
     options: or {}
-    options.radius: or @RADIUS_BIG
-    multiplier: if options.radius is @RADIUS_BIG then 5 else 10
-    options.velocity: or new Vector(multiplier * (Math.random() - 0.5), multiplier * (Math.random() - 0.5))
-    options.position: (options.position or new Vector()).plus options.velocity.times(10)
+    options.velocity: or new Vector(@topSpeed * (Math.random() - 0.5), @topSpeed * (Math.random() - 0.5))
+    options.position: (options.position or new Vector()).plus options.velocity.times(8)
     options.rotationalVelocity: or Math.random() * 0.1 - 0.05
     options.lifetime: or 24 * 30
+    options.radius: or @radius
     super options
 
-    unless (@points: options.points)?
+    unless (@corners: options.corners)?
       l: 4 * Math.random() + 8
-      @points: new Vector(2 * Math.PI * i / l).times(@radius * Math.random() + @radius / 3) for i in [0 .. l]
+      @corners: new Vector(2 * Math.PI * i / l).times(@radius * Math.random() + @radius / 3) for i in [0 .. l]
 
   explode: ->
     super()
-    if @radius > @RADIUS_SMALL
-      for i in [0 .. parseInt(Math.random()*2)+2]
-        a: new Asteroid {
-          radius: @RADIUS_SMALL
-          position: @position.clone()
-        }
-        @universe.add a
     @universe.add(new Explosion({ from: this }))
 
   _render: (ctx) ->
-    p: @points
+    p: @corners
     ctx.beginPath()
     ctx.moveTo p[0].x, p[0].y
     ctx.lineTo p[i].x, p[i].y for i in [1 ... p.length]
     ctx.closePath()
     ctx.stroke()
 Lz.Asteroid: Asteroid
+
+class BigAsteroid extends Asteroid
+  serialize: 'BigAsteroid'
+
+  explode: ->
+    super()
+    for i in [0 .. parseInt(Math.random()*2)+2]
+      @universe.add new SmallAsteroid { position: @position.clone() }
+Lz.BigAsteroid: BigAsteroid
+
+class SmallAsteroid extends Asteroid
+  serialize: 'SmallAsteroid'
+  radius: 20
+  topSpeed: 10
+  value: 500
+Lz.SmallAsteroid: SmallAsteroid
 
 class Bullet extends Mass
   serialize: 'Bullet'
@@ -577,7 +627,12 @@ class Bullet extends Mass
     ctx.stroke()
 Lz.Bullet: Bullet
 
-class Explosion extends Mass
+class TextMass extends Mass
+  solid: false
+  _render: (ctx) ->
+    ctx.fillText(@text, 0, 0) if 'fillText' in ctx
+
+class Explosion extends TextMass
   serialize: 'Explosion'
   STRINGS: ['BOOM!', 'POW!', 'KAPOW!', 'BAM!', 'EXPLODE!']
 
@@ -591,15 +646,20 @@ class Explosion extends Mass
     @text: @STRINGS[parseInt(Math.random()*@STRINGS.length)]
     @lifetime: 36  # frames
     play 'explode'
-
-  solid: false
-  overlaps: (other) ->
-    @solid
-
-  _render: (ctx) ->
-    if 'fillText' in ctx
-      ctx.fillText(@text, 0, 0)
 Lz.Explosion: Explosion
+
+class Score extends TextMass
+  constructor: (options) ->
+    options: or {}
+    options.position: options.from.position if options.from
+    options.velocity: or new Vector(0, -1.5)
+    super options
+    @lifetime: 20
+
+    value: options.value or 0
+    sign: if value > 0 then '+' else '-'
+    @text: "$sign${Math.abs(value)}"
+Lz.Score: Score
 
 class Vector
   serialize: ['Vector', { allowNesting: true }]
@@ -754,3 +814,16 @@ class Sound
 Lz.play: play: Sound.prototype.play <- new Sound(['ambient', 'explode', 'flip', 'shoot', 'warp', 'zoom_in', 'zoom_out'], { volume: 0.25 })
 
 Lz.status: status: (msg) -> $('#status .' + k).text v for k, v of msg if $?
+
+Lz.leaderboard: leaderboard: (scores) ->
+  return unless $?
+  sorted: _.sortBy scores, (score) -> -score.value
+
+  tbody: $('#score tbody').html('')
+  for score in sorted
+    $('<tr>')
+      .addClass('focus' if score.focus)
+      .append($('<td>').text(score.name))
+      .append($('<td>').text(score.value))
+      .appendTo(tbody)
+    
