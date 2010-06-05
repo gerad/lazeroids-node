@@ -504,9 +504,11 @@ class Ship extends Mass
     ctx.save()
     ctx.beginPath()
     ctx.moveTo @radius, 0
-    ctx.lineTo 0, @radius / 2.6
-    ctx.lineTo 0, @radius / -2.6
-    ctx.closePath()
+    ctx.lineTo(@radius / -4, @radius / 2.5)
+    ctx.moveTo(0, @radius * 0.32)
+    ctx.lineTo(0, @radius * -0.32)
+    ctx.moveTo(@radius / -4, @radius / -2.5)
+    ctx.lineTo @radius, 0
     ctx.stroke()
     ctx.restore()
 
