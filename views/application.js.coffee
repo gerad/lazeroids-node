@@ -339,7 +339,7 @@ class Universe
     @ctx.lineCap: 'round'
     @ctx.lineJoin: 'round'
     @ctx.strokeStyle: 'rgb(255,255,255)'
-    @ctx.fillStyle: 'rgb(255,255,255)'
+    @ctx.fillStyle: 'rgb(180,180,180)'
     @ctx.font: '8pt Monaco, monospace'
     @ctx.textAlign: 'center'
 
