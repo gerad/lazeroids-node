@@ -511,7 +511,7 @@ class Ship extends Mass
     ctx.restore()
 
   thrust: ->
-    @acceleration: @acceleration.plus(new Vector(@rotation).times(0.25))
+    @acceleration: @acceleration.plus(new Vector(@rotation).times(0.15))
     @universe.update this
 
   brake: ->
