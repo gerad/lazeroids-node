@@ -1,11 +1,7 @@
 # for those w/o console...  sad.
-unless window.console?
-  window.console: {
-    log: ->
-    dir: ->
-    error: ->
-    warn: ->
-  }
+((c) ->
+  c.log: or (c.dir: or (c.error: or (c.warn: or -> )))
+)(window.console: or {})
 
 Lz: if process? then exports else this.Lz: {}
 
