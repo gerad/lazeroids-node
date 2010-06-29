@@ -1,7 +1,6 @@
 # for those w/o console...  sad.
-((c) ->
-  c.log: or (c.dir: or (c.error: or (c.warn: or -> )))
-)(window.console: or {})
+window.console: or {}
+window.console[fn]: or (->) for fn in ['log', 'dir', 'error', 'warn']
 
 Lz: if process? then exports else this.Lz: {}
 
