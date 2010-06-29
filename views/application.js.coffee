@@ -1,3 +1,12 @@
+# for those w/o console...  sad.
+unless window.console?
+  window.console: {
+    log: ->
+    dir: ->
+    error: ->
+    warn: ->
+  }
+
 Lz: if process? then exports else this.Lz: {}
 
 class Controller
