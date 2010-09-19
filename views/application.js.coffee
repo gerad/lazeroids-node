@@ -1,3 +1,7 @@
+# for those w/o console...  sad.
+window.console: or {}
+window.console[fn]: or (->) for fn in ['log', 'dir', 'error', 'warn']
+
 Lz: if process? then exports else this.Lz: {}
 
 class Controller
