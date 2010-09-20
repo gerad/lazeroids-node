@@ -992,7 +992,7 @@
       return null;
     }
     this.observingSocket[eventName] = true;
-    return this.socket.addEvent(eventName, __bind(function(data) {
+    return this.socket.on(eventName, __bind(function(data) {
       return this.trigger(eventName, Serializer.unpack(data));
     }, this));
   };

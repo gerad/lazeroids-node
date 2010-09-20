@@ -82,7 +82,7 @@ class EchoSocket
   trigger: (args...) ->
     @o.trigger args...
 
-  addEvent: (args...) ->
+  on: (args...) ->
     @o.observe args...
 EchoSocket.sockets = []
 

@@ -8,7 +8,7 @@ class MockSocket extends Mock
   sendMessage: (data) ->
     @o.trigger 'message', data
 
-  addEvent: (name, fn) ->
+  on: (name, fn) ->
     @o.observe 'message', fn
 
 MockSocket.io = ->

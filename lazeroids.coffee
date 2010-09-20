@@ -725,7 +725,7 @@ class Connection extends Observable
     return if @observingSocket[eventName]
     @observingSocket[eventName] = true
 
-    @socket.addEvent eventName, (data) =>
+    @socket.on eventName, (data) =>
       @trigger eventName, Serializer.unpack data
 Lz.Connection = Connection
 
