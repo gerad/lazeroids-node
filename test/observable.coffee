@@ -1,4 +1,4 @@
-helpers.extend global, require('./test-helper')
+require './helpers/test-helper'
 
 test "observe", (t) ->
   o = new Lz.Observable()

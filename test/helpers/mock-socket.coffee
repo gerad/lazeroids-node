@@ -1,8 +1,8 @@
 class MockSocket extends Mock
   constructor: ->
     super()
-    @transport: { sessionid: 'mocksocket' }
-    @o: new Lz.Observable()
+    @transport = { sessionid: 'mocksocket' }
+    @o = new Lz.Observable()
     @expect 'connect'
 
   sendMessage: (data) ->
@@ -11,9 +11,9 @@ class MockSocket extends Mock
   addEvent: (name, fn) ->
     @o.observe 'message', fn
 
-MockSocket.io: ->
-  sock: new MockSocket()
-  global.io: { Socket: -> sock }
+MockSocket.io = ->
+  sock = new MockSocket()
+  global.io = { Socket: -> sock }
   sock
 
-exports.MockSocket: MockSocket
+global.MockSocket = MockSocket

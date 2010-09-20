@@ -1,9 +1,9 @@
-helpers.extend global, require('./test-helper')
-helpers.extend global, require('./helpers/mock-socket')
+require './helpers/test-helper'
+require './helpers/mock-socket'
 
-mockSocket: null
+mockSocket = null
 before ->
-  mockSocket: MockSocket.io()
+  mockSocket = MockSocket.io()
 
 test "exists", (t) ->
   t.expect 2
@@ -17,8 +17,8 @@ test "initialize", (t) ->
   t.done()
 
 test "send", (t) ->
-  message: 'What hath God wrought'
-  c: new Lz.Connection()
+  message = 'What hath God wrought'
+  c = new Lz.Connection()
 
   t.expect 1
   mockSocket.expect 'send', (msg) ->
@@ -28,8 +28,8 @@ test "send", (t) ->
   t.done()
 
 test "receive", (t) ->
-  message: 'How now brown cow?'
-  c: new Lz.Connection()
+  message = 'How now brown cow?'
+  c = new Lz.Connection()
 
   t.expect 1
   c.observe "message", (msg) ->
@@ -37,4 +37,5 @@ test "receive", (t) ->
   mockSocket.sendMessage message
 
   t.done()
+
 run(__filename)

@@ -1,9 +1,9 @@
-helpers.extend global, require('./test-helper')
+require './helpers/test-helper'
 
-universes: null
+universes = null
 before ->
-  EchoSocket.sockets: []
-  universes: []
+  EchoSocket.sockets = []
+  universes = []
   createUniverse() for i in [0...2]
   network()
 
@@ -15,7 +15,7 @@ test "setup", (t) ->
 
 test "sync", (t) ->
   t.expect 2
-  [u0, u1]: universes
+  [u0, u1] = universes
 
   t.equals 2, u0.masses.length, 'first universe gets both masses'
   t.equals 2, u1.masses.length, 'second universe gets both masses'
@@ -45,32 +45,32 @@ test "masses sync at different speed", (t) ->
   network()
   universes[1].step 0
   for id, mass of universes[1].masses.items
-    other: universes[0].masses.find mass
+    other = universes[0].masses.find mass
     t.ok other
     t.same Lz.Serializer.pack(mass), Lz.Serializer.pack(other)
   t.done()
 
-createUniverse: ->
-  u: new Lz.Universe()
-  m: new Lz.Mass()
-  m.velocity: randomVector()
+createUniverse = ->
+  u = new Lz.Universe()
+  m = new Lz.Mass()
+  m.velocity = randomVector()
   u.add m
   u.setupConnection()
   universes.push u
 
-randomVector: (max) ->
+randomVector = (max) ->
   max ?= 10
-  [x, y]: Math.floor(max * (2*Math.random()-1)) for i in [1..2]
+  [x, y] = Math.floor(max * (2*Math.random()-1)) for i in [1..2]
   new Lz.Vector(x, y)
 
-network: ->
+network = ->
   for i in [0...2]
     u.network() for u in universes
 
 class EchoSocket
   constructor: ->
-    @o: new Lz.Observable()
-    @transport: { sessionid: 'echosocket' }
+    @o = new Lz.Observable()
+    @transport = { sessionid: 'echosocket' }
 
   connect: ->
     EchoSocket.sockets.push this
@@ -84,8 +84,8 @@ class EchoSocket
 
   addEvent: (args...) ->
     @o.observe args...
-EchoSocket.sockets: []
+EchoSocket.sockets = []
 
-this.io: { Socket: EchoSocket }
+this.io = { Socket: EchoSocket }
 
 run(__filename)

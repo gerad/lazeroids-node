@@ -1,0 +1,75 @@
+#status
+  span.message
+  span.divider |
+  a.help( href: '#' ) ? for help
+  span.divider |
+  | objects:
+  span.objects
+
+table#score
+  thead
+    tr
+      th( colspan: 2 ) Leaderboard
+  tbody
+
+canvas
+
+.dialogs
+  #splash.dialog
+    h1 LAZEROIDS!!!
+    h2 massively-multiplayer html5 asteroids
+    form
+      - text = 'name your spaceship'
+      input( type: 'text', name: 'name', value: text, placeholder: text, autofocus: 'autofocus' )
+      input( type: 'submit', value: 'play' )
+    p
+      | written in
+      a( href: 'http://nodejs.org' ) node.js
+      | by
+      a.fortnight( href: 'http://fortnightlabs.com' ) <em>fortnight</em> labs
+      | \/\ code on
+      a( href: 'http://github.com/gerad/lazeroids-node' ) github
+    p.original
+      | originally written by
+      a( href: 'http://r09.railsrumble.com/teams/734m' ) 734m
+      | for
+      a( href: 'http://r09.railsrumble.com' ) rails rumble '09
+  #help.dialog
+    h1 HELP / ABOUT
+    table
+      tr
+        td move
+        td arrow keys
+      tr
+        td shoot
+        td space bar
+      tr
+        td zoom
+        td z
+      tr
+        td toggle names
+        td n
+      tr
+        td help
+        td ? / h
+    p
+      a.help( href: '#' ) close
+
+:javascript
+  | $.fx.speeds._default = 200;
+  | $(function() {
+  |   $('|splash').fadeIn();
+  |   if (localStorage.name)
+  |     $('input[name=name]').val(localStorage.name).select();
+  |   c = new Lz.Controller($('canvas').get(0));
+  |   $('form').submit(function() {
+  |     c.setName(localStorage.name = $('input[name=name]', this).val());
+  |     c.setupInput();
+  |     $('|splash').fadeOut();
+  |     return false;
+  |   });
+  |   $('a.help').click(function() {
+  |     $('|help').animate({ opacity: 'toggle' });
+  |     return false;
+  |   });
+  | });
