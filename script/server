@@ -1,2 +1,2 @@
 #! /usr/bin/env bash
-restartr node server.js
+restartr node server.js *.js

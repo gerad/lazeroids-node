@@ -7,6 +7,7 @@
   | \ 
   span.divider |
   | \ objects:
+  | \ 
   span.objects
 
 table#score
@@ -64,7 +65,7 @@ canvas
   |   $('#splash').fadeIn();
   |   if (localStorage.name)
   |     $('input[name=name]').val(localStorage.name).select();
-  |   //c = new Lz.Controller($('canvas').get(0));
+  |   c = new Lz.Controller($('canvas').get(0));
   |   $('form').submit(function() {
   |     c.setName(localStorage.name = $('input[name=name]', this).val());
   |     c.setupInput();

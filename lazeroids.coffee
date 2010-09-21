@@ -21,7 +21,7 @@ class Controller
 
   setupKeys: ->
     $(window).keydown (e) =>
-      ship: @universe.ship
+      ship = @universe.ship
       switch e.which
         when 32       # space bar = shoot
           ship.shoot()
@@ -199,7 +199,7 @@ class Universe
 
   connect: (ship) ->
     return if @ships.find ship
-    @status "$ship.name connected"
+    @status "#{ship.name} connected"
     @silently =>
       @add ship
     @send 'connect', ship
@@ -222,7 +222,7 @@ class Universe
     @loop()
 
     @injectAsteroids 5
-    setInterval __bind(this, @injectAsteroids, 3), 5000
+    setInterval (=> @injectAsteroids 3), 5000
     setInterval __bind(@updateLeaderboard, this), 1000
 
     play 'ambient', { loop: true }
@@ -231,7 +231,7 @@ class Universe
     @network()
     @step 1
     @render()
-    setTimeout (@loop <- this), 1000/24
+    setTimeout __bind(@loop, this), 1000/24
 
   step: (dt) ->
     @tick += dt
@@ -246,8 +246,6 @@ class Universe
     @io.flush()
 
   perform: (method, data) ->
-    # console.log "Performing #{method} with:"
-    # console.dir data
     this[method] data
 
   status: (message) ->
@@ -270,8 +268,7 @@ class Universe
 
   injectAsteroids: (howMany) ->
     return if @masses.length > 80
-
-    for i in [1 .. howMany || 1]
+    for i in [1 .. (howMany || 1)]
       b = @bounds
       [w, h] = [@bounds.width, @bounds.height]
       outside = new Vector w*Math.random()-w/2+b.l, h*Math.random()-h/2+b.t
@@ -582,7 +579,7 @@ class Asteroid extends Mass
     @universe.add(new Explosion({ from: this }))
 
   _render: (ctx) ->
-    p: @corners
+    p = @corners
     ctx.beginPath()
     ctx.moveTo p[0].x, p[0].y
     ctx.lineTo p[i].x, p[i].y for i in [1 ... p.length]

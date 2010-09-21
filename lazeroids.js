@@ -42,10 +42,8 @@
   };
   Controller.prototype.setupKeys = function() {
     $(window).keydown(__bind(function(e) {
-      var _d;
-      {
-        ship: this.universe.ship
-      };
+      var _d, ship;
+      ship = this.universe.ship;
       if ((_d = e.which) === 32) {
         return ship.shoot();
       } else if (_d === 37) {
@@ -290,7 +288,7 @@
     if (this.ships.find(ship)) {
       return null;
     }
-    this.status("$ship.name connected");
+    this.status(("" + (ship.name) + " connected"));
     this.silently(__bind(function() {
       return this.add(ship);
     }, this));
@@ -318,7 +316,9 @@
     this.requestSync();
     this.loop();
     this.injectAsteroids(5);
-    setInterval(__bind(this, this.injectAsteroids, 3), 5000);
+    setInterval((__bind(function() {
+      return this.injectAsteroids(3);
+    }, this)), 5000);
     setInterval(__bind(this.updateLeaderboard, this), 1000);
     return play('ambient', {
       loop: true
@@ -328,7 +328,7 @@
     this.network();
     this.step(1);
     this.render();
-    return setTimeout((this.loop < -this), 1000 / 24);
+    return setTimeout(__bind(this.loop, this), 1000 / 24);
   };
   Universe.prototype.step = function(dt) {
     var _d, _e, id, mass;
@@ -392,17 +392,17 @@
     return ctx.restore();
   };
   Universe.prototype.injectAsteroids = function(howMany) {
-    var _d, _e, b, centripetal, h, i, inside, outside, w;
+    var _d, _e, _f, b, centripetal, h, i, inside, outside, w;
     if (this.masses.length > 80) {
       return null;
     }
-    _d = [];
-    for (i = 1; (1 <= howMany || 1 ? i <= howMany || 1 : i >= howMany || 1); (1 <= howMany || 1 ? i += 1 : i -= 1)) {
+    _d = []; _e = (howMany || 1);
+    for (i = 1; (1 <= _e ? i <= _e : i >= _e); (1 <= _e ? i += 1 : i -= 1)) {
       _d.push((function() {
         b = this.bounds;
-        _e = [this.bounds.width, this.bounds.height];
-        w = _e[0];
-        h = _e[1];
+        _f = [this.bounds.width, this.bounds.height];
+        w = _f[0];
+        h = _f[1];
         outside = new Vector(w * Math.random() - w / 2 + b.l, h * Math.random() - h / 2 + b.t);
         if (outside.x > b.l) {
           outside.x += w;
@@ -812,10 +812,8 @@
     }));
   };
   Asteroid.prototype._render = function(ctx) {
-    var _d, i;
-    {
-      p: this.corners
-    };
+    var _d, i, p;
+    p = this.corners;
     ctx.beginPath();
     ctx.moveTo(p[0].x, p[0].y);
     _d = p.length;
