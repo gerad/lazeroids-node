@@ -1,9 +1,12 @@
 #status
   span.message
+  | \ 
   span.divider |
+  | \ 
   a.help( href: '#' ) ? for help
+  | \ 
   span.divider |
-  | objects:
+  | \ objects:
   span.objects
 
 table#score
@@ -23,16 +26,16 @@ canvas
       input( type: 'text', name: 'name', value: text, placeholder: text, autofocus: 'autofocus' )
       input( type: 'submit', value: 'play' )
     p
-      | written in
+      | written in \ 
       a( href: 'http://nodejs.org' ) node.js
-      | by
+      | \ by\ 
       a.fortnight( href: 'http://fortnightlabs.com' ) <em>fortnight</em> labs
-      | \/\ code on
+      | \ \/\ code on\ 
       a( href: 'http://github.com/gerad/lazeroids-node' ) github
     p.original
-      | originally written by
+      | originally written by\ 
       a( href: 'http://r09.railsrumble.com/teams/734m' ) 734m
-      | for
+      | \ for\ 
       a( href: 'http://r09.railsrumble.com' ) rails rumble '09
   #help.dialog
     h1 HELP / ABOUT
@@ -58,18 +61,18 @@ canvas
 :javascript
   | $.fx.speeds._default = 200;
   | $(function() {
-  |   $('|splash').fadeIn();
+  |   $('#splash').fadeIn();
   |   if (localStorage.name)
   |     $('input[name=name]').val(localStorage.name).select();
-  |   c = new Lz.Controller($('canvas').get(0));
+  |   //c = new Lz.Controller($('canvas').get(0));
   |   $('form').submit(function() {
   |     c.setName(localStorage.name = $('input[name=name]', this).val());
   |     c.setupInput();
-  |     $('|splash').fadeOut();
+  |     $('#splash').fadeOut();
   |     return false;
   |   });
   |   $('a.help').click(function() {
-  |     $('|help').animate({ opacity: 'toggle' });
+  |     $('#help').animate({ opacity: 'toggle' });
   |     return false;
   |   });
   | });
