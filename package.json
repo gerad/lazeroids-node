@@ -11,8 +11,7 @@
     "node":       ">=0.2.2"
   },
   "dependencies": {
-    "nodeunit" :       ">=0.1.0",
-    "nodeunit-dsl":    ">=0.0.1",
+    "nodeunit-dsl":    ">=0.0.2",
     "express":         ">=1.0.0rc",
     "socket.io":       ">=0.5.3",
     "coffee-script":   ">=0.9.3",

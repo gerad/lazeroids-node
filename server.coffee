@@ -15,8 +15,9 @@ app.get '/lazeroids.js', (req, res) ->
 
 app.listen(process.env.PORT || 8000)
 
-comet = require('socket.io').listen app, (client) ->
+socket = require('socket.io').listen app
+socket.on 'connection', (client) ->
   client.on 'message', ->
-    comet.broadcast message
+    socket.broadcast message
   client.on 'disconnect', ->
     client.broadcast [['disconnect', client.sessionId]]
