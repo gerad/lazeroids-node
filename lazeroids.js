@@ -201,9 +201,8 @@
   };
   __extends(ShipStorage, MassStorage);
   ShipStorage.prototype.find = function(mass) {
-    {
-      ship: ShipStorage.__superClass__.find.call(this, mass)
-    };
+    var ship;
+    ship = ShipStorage.__superClass__.find.call(this, mass);
     if ((typeof ship === "undefined" || ship == undefined ? undefined : ship.id) === mass.id) {
       return ship;
     }
@@ -215,9 +214,8 @@
     return this.items[connectionId];
   };
   ShipStorage.prototype.set = function(mass) {
-    {
-      toSet: this.items[mass.connectionId]
-    };
+    var toSet;
+    toSet = this.items[mass.connectionId];
     return !(typeof toSet !== "undefined" && toSet !== null) || mass.id === toSet.id ? ShipStorage.__superClass__.set.call(this, mass) : null;
   };
   Universe = function(options) {
@@ -260,10 +258,8 @@
     return this.send('add', mass);
   };
   Universe.prototype.update = function(mass) {
-    var _d;
-    {
-      existing: this.masses.find(mass)
-    };
+    var _d, existing;
+    existing = this.masses.find(mass);
     if (!(typeof existing !== "undefined" && existing !== null) || existing.ntick < mass.ntick) {
       mass.universe = this;
       if ((typeof (_d = mass.ship) !== "undefined" && _d !== null)) {
@@ -916,7 +912,7 @@
     this.lifetime = 20;
     value = options.value || 0;
     sign = value > 0 ? '+' : '-';
-    this.text = "$sign${Math.abs(value)}";
+    this.text = ("" + (sign) + (Math.abs(value)));
     return this;
   };
   __extends(Score, TextMass);
@@ -970,7 +966,9 @@
   };
   __extends(Connection, Observable);
   Connection.prototype.send = function(obj) {
-    return this.socket.send(Serializer.pack(obj));
+    var data;
+    data = Serializer.pack(obj);
+    return this.socket.send(JSON.stringify(data));
   };
   Connection.prototype.observe = function(msg, fn) {
     Connection.__superClass__.observe.call(this, msg, fn);
@@ -990,7 +988,11 @@
       return null;
     }
     this.observingSocket[eventName] = true;
-    return this.socket.on(eventName, __bind(function(data) {
+    return this.socket.on(eventName, __bind(function(json) {
+      var data;
+      if (json) {
+        data = JSON.parse(json);
+      }
       return this.trigger(eventName, Serializer.unpack(data));
     }, this));
   };

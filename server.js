@@ -18,11 +18,11 @@
   app.listen(process.env.PORT || 8000);
   socket = require('socket.io').listen(app);
   socket.on('connection', function(client) {
-    client.on('message', function() {
+    client.on('message', function(message) {
       return socket.broadcast(message);
     });
     return client.on('disconnect', function() {
-      return client.broadcast([['disconnect', client.sessionId]]);
+      return client.broadcast(JSON.stringify([['disconnect', client.sessionId]]));
     });
   });
 })();

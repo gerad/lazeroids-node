@@ -22,7 +22,7 @@ test "send", (t) ->
 
   t.expect 1
   mockSocket.expect 'send', (msg) ->
-    t.equals msg, message
+    t.equals msg, JSON.stringify(message)
   c.send(message)
 
   t.done()
@@ -34,7 +34,7 @@ test "receive", (t) ->
   t.expect 1
   c.observe "message", (msg) ->
     t.equals msg, message
-  mockSocket.sendMessage message
+  mockSocket.sendMessage JSON.stringify(message)
 
   t.done()
 

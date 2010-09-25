@@ -17,7 +17,7 @@ app.listen(process.env.PORT || 8000)
 
 socket = require('socket.io').listen app
 socket.on 'connection', (client) ->
-  client.on 'message', ->
+  client.on 'message', (message) ->
     socket.broadcast message
   client.on 'disconnect', ->
-    client.broadcast [['disconnect', client.sessionId]]
+    client.broadcast JSON.stringify([['disconnect', client.sessionId]])

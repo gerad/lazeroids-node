@@ -138,7 +138,7 @@ class MassStorage
 
 class ShipStorage extends MassStorage
   find: (mass) ->
-    ship: super mass
+    ship = super mass
     ship if ship?.id is mass.id
 
   key: (mass) ->
@@ -148,7 +148,7 @@ class ShipStorage extends MassStorage
     @items[connectionId]
 
   set: (mass) ->
-    toSet: @items[mass.connectionId]
+    toSet = @items[mass.connectionId]
     if !toSet? or mass.id is toSet.id
       super mass
 
@@ -184,7 +184,7 @@ class Universe
     @send 'add', mass
 
   update: (mass) ->
-    existing: @masses.find(mass)
+    existing = @masses.find(mass)
     if not existing? or existing.ntick < mass.ntick
       mass.universe = this
       @ships.update mass if mass.ship?
@@ -662,7 +662,7 @@ class Score extends TextMass
 
     value = options.value or 0
     sign = if value > 0 then '+' else '-'
-    @text = "$sign${Math.abs(value)}"
+    @text = "#{sign}#{Math.abs(value)}"
 Lz.Score = Score
 
 class Vector
@@ -704,7 +704,8 @@ class Connection extends Observable
     @setupObservers()
 
   send: (obj) ->
-    @socket.send Serializer.pack obj
+    data = Serializer.pack obj
+    @socket.send JSON.stringify(data)
 
   observe: (msg, fn) ->
     super msg, fn
@@ -722,7 +723,8 @@ class Connection extends Observable
     return if @observingSocket[eventName]
     @observingSocket[eventName] = true
 
-    @socket.on eventName, (data) =>
+    @socket.on eventName, (json) =>
+      data = JSON.parse(json) if json
       @trigger eventName, Serializer.unpack data
 Lz.Connection = Connection
 

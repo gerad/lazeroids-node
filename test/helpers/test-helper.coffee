@@ -25,6 +25,6 @@ class Mock
   mockFn: (calledName) ->
     return (args...) ->
       [name, fn] = @expectations.pop()
-      assert.equal name, calledName, "Mock expected $name to be called. Got $calledName."
+      assert.equal name, calledName, "Mock expected #{name} to be called. Got #{calledName}."
       fn(args...) if fn?
 global.Mock = Mock

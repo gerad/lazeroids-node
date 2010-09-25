@@ -50,6 +50,15 @@ test "masses sync at different speed", (t) ->
     t.same Lz.Serializer.pack(mass), Lz.Serializer.pack(other)
   t.done()
 
+test "ship syncs from self are ignored", (t) ->
+  u = universes[0]
+  s = new Lz.Ship
+  u.add s
+  count = u.ships.length
+  network()
+  t.equals count, u.ships.length, "the universe remains unchanged post network"
+  t.done()
+
 createUniverse = ->
   u = new Lz.Universe()
   m = new Lz.Mass()
