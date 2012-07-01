@@ -1,23 +1,30 @@
 {
-  "name":         "lazeroids",
-  "description":  "Massively-multiplayer Online Asteroids",
-  "author":       "Fortnight Labs, LLC",
-  "version":      "0.3.0",
-  "licenses": [{
-    "type":       "MIT",
-    "url":        "http://opensource.org/licenses/mit-license.php"
-  }],
+  "name": "lazeroids",
+  "description": "Massively-multiplayer Online Asteroids",
+  "author": "Fortnight Labs, LLC",
+  "version": "0.3.0-4",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/mit-license.php"
+    }
+  ],
   "engines": {
-    "node":       ">=0.2.2"
+    "node": ">=0.2.2"
+  },
+  "devDependencies": {
+    "coffee-script": "*",
+    "nodeunit-dsl": "*"
   },
   "dependencies": {
-    "nodeunit-dsl":    ">=0.0.2",
-    "express":         ">=1.0.0rc",
-    "socket.io":       ">=0.5.3",
-    "coffee-script":   ">=0.9.3",
-    "restartr":        ">=0.1.8",
-    "jade":            ">=0.5.0",
-    "sass":            ">=0.4.3"
+    "express": "*",
+    "socket.io": "*",
+    "jade": "*",
+    "sass": "*"
   },
-  "main": "./lazeroids.js"
+  "main": "./lazeroids.js",
+  "subdomain": "lazeroids",
+  "scripts": {
+    "start": "server.js"
+  }
 }
