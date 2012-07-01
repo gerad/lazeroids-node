@@ -1,5 +1,5 @@
 (function() {
-  var app, express, pub, socket;
+  var app, express, pub, io;
 
   express = require('express');
 
@@ -23,14 +23,14 @@
 
   app.listen(process.env.PORT || 8000);
 
-  socket = require('socket.io').listen(app);
+  io = require('socket.io').listen(app);
 
-  socket.on('connection', function(client) {
-    client.on('message', function(message) {
-      return socket.broadcast(message);
+  io.sockets.on('connection', function(socket) {
+    socket.on('message', function(message) {
+      socket.broadcast.emit(message);
     });
-    return client.on('disconnect', function() {
-      return client.broadcast(JSON.stringify([['disconnect', client.sessionId]]));
+    socket.on('disconnect', function() {
+      socket.broadcast.emit(JSON.stringify([['disconnect', socket.sessionId]]));
     });
   });
 

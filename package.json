@@ -24,7 +24,11 @@
   },
   "main": "./lazeroids.js",
   "subdomain": "lazeroids",
+  "domains": [
+    "lazeroids.com",
+    "www.lazeroids.com"
+  ],
   "scripts": {
-    "start": "server.js"
+    "start": "node server.js"
   }
 }

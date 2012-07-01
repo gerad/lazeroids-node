@@ -960,7 +960,7 @@
   };
   Lz.Vector = Vector;
   Connection = function() {
-    this.socket = new io.Socket();
+    this.socket = io.connect();
     this.setupObservers();
     return this;
   };
@@ -975,12 +975,12 @@
     return this.observeSocket(msg);
   };
   Connection.prototype.connect = function() {
-    return this.socket.connect();
+    //return this.socket.connect();
   };
   Connection.prototype.setupObservers = function() {
     this.observingSocket = {};
     return this.observe("connect", __bind(function() {
-      return (this.id = this.socket.transport.sessionid);
+      return (this.id = this.socket.socket.sessionid);
     }, this));
   };
   Connection.prototype.observeSocket = function(eventName) {
