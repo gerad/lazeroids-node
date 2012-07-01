@@ -24,13 +24,14 @@
   app.listen(process.env.PORT || 8000);
 
   io = require('socket.io').listen(app);
+  io.set('log level', 2);
 
   io.sockets.on('connection', function(socket) {
     socket.on('message', function(message) {
-      socket.broadcast.emit(message);
+      socket.broadcast.emit('message', message);
     });
     socket.on('disconnect', function() {
-      socket.broadcast.emit(JSON.stringify([['disconnect', socket.sessionId]]));
+      socket.broadcast.emit('message', JSON.stringify([['disconnect', socket.id]]));
     });
   });
 

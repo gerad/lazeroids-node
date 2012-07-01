@@ -990,7 +990,7 @@
     this.observingSocket[eventName] = true;
     return this.socket.on(eventName, __bind(function(json) {
       var data;
-      if (json) {
+      if (json && json !== 'booted') {
         data = JSON.parse(json);
       }
       return this.trigger(eventName, Serializer.unpack(data));
