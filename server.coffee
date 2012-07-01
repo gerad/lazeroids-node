@@ -3,7 +3,7 @@ express = require('express')
 pub = __dirname + '/public'
 app = express.createServer(
   express.compiler({ src: pub, enable: ['sass'] }),
-  express.staticProvider(pub),
+  express.static(pub),
   express.logger(),
   express.errorHandler({ dumpExceptions: true, showStack: true }))
 

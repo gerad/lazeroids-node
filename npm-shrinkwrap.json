@@ -1,0 +1,178 @@
+{
+  "name": "lazeroids",
+  "version": "0.3.0",
+  "dependencies": {
+    "nodeunit-dsl": {
+      "version": "0.0.2",
+      "dependencies": {
+        "nodeunit": {
+          "version": "0.7.4",
+          "dependencies": {
+            "tap": {
+              "version": "0.2.5",
+              "dependencies": {
+                "inherits": {
+                  "version": "1.0.0"
+                },
+                "yamlish": {
+                  "version": "0.0.5"
+                },
+                "slide": {
+                  "version": "1.1.3"
+                },
+                "runforcover": {
+                  "version": "0.0.2",
+                  "dependencies": {
+                    "bunker": {
+                      "version": "0.1.2",
+                      "dependencies": {
+                        "burrito": {
+                          "version": "0.2.12",
+                          "dependencies": {
+                            "traverse": {
+                              "version": "0.5.2"
+                            },
+                            "uglify-js": {
+                              "version": "1.1.1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "nopt": {
+                  "version": "1.0.10",
+                  "dependencies": {
+                    "abbrev": {
+                      "version": "1.0.3"
+                    }
+                  }
+                },
+                "mkdirp": {
+                  "version": "0.3.3"
+                },
+                "difflet": {
+                  "version": "0.2.1",
+                  "dependencies": {
+                    "traverse": {
+                      "version": "0.6.3"
+                    },
+                    "charm": {
+                      "version": "0.0.8"
+                    }
+                  }
+                },
+                "deep-equal": {
+                  "version": "0.0.0"
+                },
+                "buffer-equal": {
+                  "version": "0.0.0"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "express": {
+      "version": "2.5.11",
+      "dependencies": {
+        "connect": {
+          "version": "1.9.1",
+          "dependencies": {
+            "formidable": {
+              "version": "1.0.11"
+            }
+          }
+        },
+        "mime": {
+          "version": "1.2.4"
+        },
+        "qs": {
+          "version": "0.4.2"
+        },
+        "mkdirp": {
+          "version": "0.3.0"
+        }
+      }
+    },
+    "socket.io": {
+      "version": "0.9.6",
+      "dependencies": {
+        "socket.io-client": {
+          "version": "0.9.6",
+          "dependencies": {
+            "uglify-js": {
+              "version": "1.2.5"
+            },
+            "ws": {
+              "version": "0.4.20",
+              "dependencies": {
+                "commander": {
+                  "version": "0.6.1"
+                },
+                "tinycolor": {
+                  "version": "0.0.1"
+                },
+                "options": {
+                  "version": "0.0.3"
+                }
+              }
+            },
+            "xmlhttprequest": {
+              "version": "1.2.2"
+            },
+            "active-x-obfuscator": {
+              "version": "0.0.1",
+              "dependencies": {
+                "zeparser": {
+                  "version": "0.0.5"
+                }
+              }
+            }
+          }
+        },
+        "policyfile": {
+          "version": "0.0.4"
+        },
+        "redis": {
+          "version": "0.6.7"
+        }
+      }
+    },
+    "coffee-script": {
+      "version": "1.3.3"
+    },
+    "restartr": {
+      "version": "0.1.10",
+      "dependencies": {
+        "optimist": {
+          "version": "0.3.4",
+          "dependencies": {
+            "wordwrap": {
+              "version": "0.0.2"
+            }
+          }
+        },
+        "colors": {
+          "version": "0.6.0-1"
+        }
+      }
+    },
+    "jade": {
+      "version": "0.26.3",
+      "dependencies": {
+        "commander": {
+          "version": "0.6.1"
+        },
+        "mkdirp": {
+          "version": "0.3.0"
+        }
+      }
+    },
+    "sass": {
+      "version": "0.5.0"
+    }
+  }
+}
