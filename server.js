@@ -18,7 +18,7 @@
   });
 
   app.get('/lazeroids.js', function(req, res) {
-    return res.sendfile('lazeroids.js');
+    	return res.sendfile('lazeroids.js', {root:__dirname});
   });
 
   app.listen(process.env.PORT || 8000);
